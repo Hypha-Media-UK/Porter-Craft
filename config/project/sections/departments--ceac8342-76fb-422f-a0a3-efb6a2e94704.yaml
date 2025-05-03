@@ -1,0 +1,28 @@
+defaultPlacement: end
+enableVersioning: true
+entryTypes:
+  -
+    uid: f5051ed3-2649-4f41-a303-9d3b06368f94 # Ent Departments
+handle: departments
+maxAuthors: 1
+name: Departments
+previewTargets:
+  -
+    __assoc__:
+      -
+        - label
+        - 'Primary entry page'
+      -
+        - urlFormat
+        - '{url}'
+      -
+        - refresh
+        - '1'
+propagationMethod: all
+siteSettings:
+  6a92aa12-7350-4d77-a9af-a478cee25845: # Porter Craft
+    enabledByDefault: true
+    hasUrls: true
+    template: departments/_entry.twig
+    uriFormat: 'departments/{slug}'
+type: channel

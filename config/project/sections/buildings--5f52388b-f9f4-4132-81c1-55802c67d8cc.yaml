@@ -1,0 +1,28 @@
+defaultPlacement: end
+enableVersioning: true
+entryTypes:
+  -
+    uid: a6ca13d7-bc6b-4c17-a310-b0fcaa34804d # Ent Buildings
+handle: buildings
+maxAuthors: 1
+name: Buildings
+previewTargets:
+  -
+    __assoc__:
+      -
+        - label
+        - 'Primary entry page'
+      -
+        - urlFormat
+        - '{url}'
+      -
+        - refresh
+        - '1'
+propagationMethod: all
+siteSettings:
+  6a92aa12-7350-4d77-a9af-a478cee25845: # Porter Craft
+    enabledByDefault: true
+    hasUrls: true
+    template: buildings/_entry.twig
+    uriFormat: 'buildings/{slug}'
+type: channel

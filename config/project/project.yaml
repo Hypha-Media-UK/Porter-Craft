@@ -1,12 +1,16 @@
-dateModified: 1746273100
+dateModified: 1746273444
 email:
   fromEmail: access@hypha.media
   fromName: 'Porter Craft'
   transportType: craft\mail\transportadapters\Sendmail
 meta:
   __names__:
+    5f52388b-f9f4-4132-81c1-55802c67d8cc: Buildings # Buildings
     6a92aa12-7350-4d77-a9af-a478cee25845: 'Porter Craft' # Porter Craft
+    a6ca13d7-bc6b-4c17-a310-b0fcaa34804d: 'Ent Buildings' # Ent Buildings
+    ceac8342-76fb-422f-a0a3-efb6a2e94704: Departments # Departments
     ebb3dbd8-552b-48fb-aebb-0c13143be157: 'Porter Craft' # Porter Craft
+    f5051ed3-2649-4f41-a303-9d3b06368f94: 'Ent Departments' # Ent Departments
 system:
   edition: solo
   live: true

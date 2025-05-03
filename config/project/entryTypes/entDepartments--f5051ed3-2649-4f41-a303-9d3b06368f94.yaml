@@ -1,0 +1,51 @@
+color: null
+fieldLayouts:
+  0a3f4f6b-8ae9-41ea-b7d2-162fd7c07921:
+    tabs:
+      -
+        elementCondition: null
+        elements:
+          -
+            autocapitalize: true
+            autocomplete: false
+            autocorrect: true
+            class: null
+            dateAdded: '2025-05-03T11:55:35+00:00'
+            disabled: false
+            elementCondition: null
+            id: null
+            includeInCards: false
+            inputType: null
+            instructions: null
+            label: null
+            max: null
+            min: null
+            name: null
+            orientation: null
+            placeholder: null
+            providesThumbs: false
+            readonly: false
+            required: true
+            size: null
+            step: null
+            tip: null
+            title: null
+            type: craft\fieldlayoutelements\entries\EntryTitleField
+            uid: b4dd7357-e4b5-4c5f-bc44-a3942381aaed
+            userCondition: null
+            warning: null
+            width: 100
+        name: Content
+        uid: 168c59fd-e818-45ec-811d-7d74774c9138
+        userCondition: null
+handle: entDepartments
+hasTitleField: true
+icon: phone-office
+name: 'Ent Departments'
+showSlugField: true
+showStatusField: true
+slugTranslationKeyFormat: null
+slugTranslationMethod: site
+titleFormat: null
+titleTranslationKeyFormat: null
+titleTranslationMethod: site
