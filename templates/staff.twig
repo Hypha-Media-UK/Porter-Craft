@@ -1,8 +1,14 @@
 {% extends "_layout" %}
 
 {% block content %}
-    <div class="staff-management">
+    <div class="header-with-nav">
         <h1>Staff Management</h1>
+        <div class="nav-links">
+            <a href="{{ siteUrl('settings') }}" class="btn">← Back to Settings</a>
+        </div>
+    </div>
+    
+    <div class="staff-management">
         
         <div class="staff-sections">
             <div class="section-card">

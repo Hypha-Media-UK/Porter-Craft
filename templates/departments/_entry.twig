@@ -1,0 +1,124 @@
+{% extends "_layout" %}
+
+{% block content %}
+    <div class="department-detail">
+        <h1>Department Details</h1>
+        
+        <div class="department-info">
+            <h2>{{ entry.title }}</h2>
+            
+            <div class="info-card">
+                <div class="info-item">
+                    <strong>Department Name:</strong> {{ entry.title }}
+                </div>
+                
+                {% set relatedBuilding = craft.entries()
+                    .section('buildings')
+                    .relatedTo(entry)
+                    .one() %}
+                
+                <div class="info-item">
+                    <strong>Building:</strong> 
+                    {% if relatedBuilding %}
+                        <a href="{{ relatedBuilding.url }}">{{ relatedBuilding.title }}</a>
+                    {% else %}
+                        <em>None assigned</em>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="staff-assignments">
+                <h3>Assigned Staff</h3>
+                
+                {% set assignedPorters = craft.entries()
+                    .section('porters')
+                    .relatedTo(entry)
+                    .all() %}
+                
+                <h4>Porters</h4>
+                {% if assignedPorters|length %}
+                    <ul class="staff-list">
+                        {% for porter in assignedPorters %}
+                            <li>
+                                <a href="{{ porter.url }}">{{ porter.title }} {{ porter.fd_surname }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p><em>No porters assigned to this department yet.</em></p>
+                {% endif %}
+                
+                {% set assignedSupervisors = craft.entries()
+                    .section('supervisors')
+                    .relatedTo(entry)
+                    .all() %}
+                
+                <h4>Supervisors</h4>
+                {% if assignedSupervisors|length %}
+                    <ul class="staff-list">
+                        {% for supervisor in assignedSupervisors %}
+                            <li>
+                                <a href="{{ supervisor.url }}">{{ supervisor.title }} {{ supervisor.fd_surname }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p><em>No supervisors assigned to this department yet.</em></p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="actions">
+            <a href="{{ siteUrl('departments') }}" class="btn back-btn">Back to Departments List</a>
+            <a href="{{ siteUrl('settings') }}" class="btn back-btn">Back to Settings</a>
+            <a href="{{ entry.cpEditUrl }}" class="btn edit-btn">Edit Department</a>
+        </div>
+    </div>
+    
+    <style>
+        .department-detail {
+            margin-top: 20px;
+        }
+        .department-info {
+            margin: 20px 0;
+        }
+        .info-card {
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .info-item {
+            margin-bottom: 10px;
+        }
+        .staff-assignments {
+            margin-top: 30px;
+        }
+        .staff-assignments h4 {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        .staff-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .staff-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .staff-list li:last-child {
+            border-bottom: none;
+        }
+        .actions {
+            margin-top: 30px;
+        }
+        .back-btn, .edit-btn {
+            display: inline-block;
+            text-decoration: none;
+            margin-right: 10px;
+        }
+    </style>
+{% endblock %}
