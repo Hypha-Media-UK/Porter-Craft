@@ -1,0 +1,31 @@
+defaultPlacement: end
+enableVersioning: true
+entryTypes:
+  -
+    uid: fe915955-f57d-4ec4-bf9c-92c417a8e11d # Ent Porters
+handle: porters
+maxAuthors: 1
+name: Porters
+previewTargets:
+  -
+    __assoc__:
+      -
+        - label
+        - 'Primary entry page'
+      -
+        - urlFormat
+        - '{url}'
+      -
+        - refresh
+        - '1'
+propagationMethod: all
+siteSettings:
+  6a92aa12-7350-4d77-a9af-a478cee25845: # Porter Craft
+    enabledByDefault: true
+    hasUrls: true
+    template: porters/_entry.twig
+    uriFormat: 'porters/{slug}'
+structure:
+  maxLevels: 1
+  uid: a210ba69-a5b6-41ee-85e4-be3c257b2891
+type: structure

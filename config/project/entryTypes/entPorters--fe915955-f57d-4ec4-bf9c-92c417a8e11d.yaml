@@ -1,0 +1,51 @@
+color: null
+fieldLayouts:
+  09150776-24e3-4670-96c5-1a820af33407:
+    tabs:
+      -
+        elementCondition: null
+        elements:
+          -
+            autocapitalize: true
+            autocomplete: false
+            autocorrect: true
+            class: null
+            dateAdded: '2025-05-03T11:57:22+00:00'
+            disabled: false
+            elementCondition: null
+            id: null
+            includeInCards: false
+            inputType: null
+            instructions: null
+            label: Name
+            max: null
+            min: null
+            name: null
+            orientation: null
+            placeholder: null
+            providesThumbs: false
+            readonly: false
+            required: true
+            size: null
+            step: null
+            tip: null
+            title: null
+            type: craft\fieldlayoutelements\entries\EntryTitleField
+            uid: 0d77459c-6b5e-4021-827e-d60317e8df21
+            userCondition: null
+            warning: null
+            width: 100
+        name: Content
+        uid: 04bae4b1-aa27-456a-9da1-61199702ed14
+        userCondition: null
+handle: entPorters
+hasTitleField: true
+icon: person-walking-luggage
+name: 'Ent Porters'
+showSlugField: true
+showStatusField: true
+slugTranslationKeyFormat: null
+slugTranslationMethod: site
+titleFormat: null
+titleTranslationKeyFormat: null
+titleTranslationMethod: site
