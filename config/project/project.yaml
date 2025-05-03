@@ -1,0 +1,22 @@
+dateModified: 1746273100
+email:
+  fromEmail: access@hypha.media
+  fromName: 'Porter Craft'
+  transportType: craft\mail\transportadapters\Sendmail
+meta:
+  __names__:
+    6a92aa12-7350-4d77-a9af-a478cee25845: 'Porter Craft' # Porter Craft
+    ebb3dbd8-552b-48fb-aebb-0c13143be157: 'Porter Craft' # Porter Craft
+system:
+  edition: solo
+  live: true
+  name: 'Porter Craft'
+  schemaVersion: 5.7.0.3
+  timeZone: America/Los_Angeles
+users:
+  allowPublicRegistration: false
+  defaultGroup: null
+  photoSubpath: null
+  photoVolumeUid: null
+  require2fa: false
+  requireEmailVerification: true

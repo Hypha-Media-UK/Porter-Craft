@@ -1,0 +1,8 @@
+baseUrl: $PRIMARY_SITE_URL
+handle: default
+hasUrls: true
+language: en-GB
+name: 'Porter Craft'
+primary: true
+siteGroup: ebb3dbd8-552b-48fb-aebb-0c13143be157 # Porter Craft
+sortOrder: 1
