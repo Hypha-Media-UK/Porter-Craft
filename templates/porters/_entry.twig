@@ -1,0 +1,50 @@
+{% extends "_layout" %}
+
+{% block content %}
+    <div class="porter-detail">
+        <h1>Porter Details</h1>
+        
+        <div class="porter-info">
+            <h2>{{ entry.title }} {{ entry.fd_surname }}</h2>
+            
+            <div class="info-card">
+                <div class="info-item">
+                    <strong>First Name:</strong> {{ entry.title }}
+                </div>
+                <div class="info-item">
+                    <strong>Surname:</strong> {{ entry.fd_surname }}
+                </div>
+            </div>
+        </div>
+        
+        <div class="actions">
+            <a href="{{ siteUrl('porters') }}" class="btn back-btn">Back to Porters List</a>
+            <a href="{{ siteUrl('staff') }}" class="btn back-btn">Staff Management</a>
+        </div>
+    </div>
+    
+    <style>
+        .porter-detail {
+            margin-top: 20px;
+        }
+        .porter-info {
+            margin: 20px 0;
+        }
+        .info-card {
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            padding: 20px;
+        }
+        .info-item {
+            margin-bottom: 10px;
+        }
+        .actions {
+            margin-top: 30px;
+        }
+        .back-btn {
+            display: inline-block;
+            text-decoration: none;
+        }
+    </style>
+{% endblock %}

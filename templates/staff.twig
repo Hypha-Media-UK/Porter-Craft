@@ -1,0 +1,79 @@
+{% extends "_layout" %}
+
+{% block content %}
+    <div class="staff-management">
+        <h1>Staff Management</h1>
+        
+        <div class="staff-sections">
+            <div class="section-card">
+                <h2>Porters Management</h2>
+                <p>Add and manage porters with their first name and surname.</p>
+                <div class="staff-count">
+                    {% set porterCount = craft.entries()
+                        .section('porters')
+                        .count() %}
+                    <strong>{{ porterCount }}</strong> porter{{ porterCount != 1 ? 's' : '' }} currently in the system
+                </div>
+                <div class="actions">
+                    <a href="{{ siteUrl('porters') }}" class="btn">Manage Porters</a>
+                </div>
+            </div>
+            
+            <div class="section-card">
+                <h2>Supervisors Management</h2>
+                <p>Add and manage supervisors with their first name and surname.</p>
+                <div class="staff-count">
+                    {% set supervisorCount = craft.entries()
+                        .section('supervisors')
+                        .count() %}
+                    <strong>{{ supervisorCount }}</strong> supervisor{{ supervisorCount != 1 ? 's' : '' }} currently in the system
+                </div>
+                <div class="actions">
+                    <a href="{{ siteUrl('supervisors') }}" class="btn">Manage Supervisors</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <style>
+        .staff-management {
+            margin-top: 20px;
+        }
+        
+        .staff-sections {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .section-card {
+            flex: 1;
+            min-width: 300px;
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            padding: 25px;
+        }
+        
+        .section-card h2 {
+            margin-top: 0;
+            color: #0d6efd;
+        }
+        
+        .staff-count {
+            margin: 20px 0;
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .actions {
+            margin-top: 20px;
+        }
+        
+        .actions .btn {
+            display: inline-block;
+            text-decoration: none;
+        }
+    </style>
+{% endblock %}

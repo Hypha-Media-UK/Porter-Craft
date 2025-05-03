@@ -1,0 +1,28 @@
+defaultPlacement: end
+enableVersioning: true
+entryTypes:
+  -
+    uid: 0ddc1c53-595b-487f-8473-eece2e4861de # Ent Supervisors
+handle: supervisors
+maxAuthors: 1
+name: Supervisors
+previewTargets:
+  -
+    __assoc__:
+      -
+        - label
+        - 'Primary entry page'
+      -
+        - urlFormat
+        - '{url}'
+      -
+        - refresh
+        - '1'
+propagationMethod: all
+siteSettings:
+  6a92aa12-7350-4d77-a9af-a478cee25845: # Porter Craft
+    enabledByDefault: true
+    hasUrls: true
+    template: supervisors/_entry.twig
+    uriFormat: 'supervisors/{slug}'
+type: channel
