@@ -40,7 +40,7 @@ fieldLayouts:
         userCondition: null
 handle: taskCategories
 hasTitleField: true
-icon: null
+icon: list
 name: 'Task Categories'
 showSlugField: true
 showStatusField: true

@@ -2,6 +2,8 @@ defaultPlacement: end
 enableVersioning: true
 entryTypes:
   -
+    uid: a77bbb05-d771-4014-ae5a-7e0b5e8be34b # Ent Departments
+  -
     uid: a6ca13d7-bc6b-4c17-a310-b0fcaa34804d # Ent Locations
 handle: locations
 maxAuthors: 1

@@ -1,4 +1,4 @@
-dateModified: 1746368667
+dateModified: 1746370751
 elementSources:
   craft\elements\Entry:
     -
@@ -67,6 +67,7 @@ meta:
     a029653d-b401-4157-b33a-c398463b10b2: 'Task Categories' # Task Categories
     a5d142a4-e455-4840-837d-102f7c4cc78c: Departments # Departments
     a6ca13d7-bc6b-4c17-a310-b0fcaa34804d: 'Ent Locations' # Ent Locations
+    a77bbb05-d771-4014-ae5a-7e0b5e8be34b: 'Ent Departments' # Ent Departments
     b1d95329-57ac-49cf-90d7-b40a1bdbcd01: Porters # Porters
     ebb3dbd8-552b-48fb-aebb-0c13143be157: 'Porter Craft' # Porter Craft
     f44b07d1-48b3-48fe-8bfe-f8f12f5ed053: Supervisors # Supervisors

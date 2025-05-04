@@ -1,6 +1,6 @@
 color: null
 fieldLayouts:
-  c1805f47-7d20-47d4-8ae0-99427a38111c:
+  f82ffbf3-62ac-4d87-b915-c5e13b277e75:
     tabs:
       -
         elementCondition: null
@@ -10,7 +10,7 @@ fieldLayouts:
             autocomplete: false
             autocorrect: true
             class: null
-            dateAdded: '2025-05-03T11:54:36+00:00'
+            dateAdded: '2025-05-04T14:56:30+00:00'
             disabled: false
             elementCondition: null
             id: null
@@ -31,17 +31,17 @@ fieldLayouts:
             tip: null
             title: null
             type: craft\fieldlayoutelements\entries\EntryTitleField
-            uid: c69ae4d9-9663-40c1-ab14-bf600cda66c3
+            uid: 2511979a-f4db-4257-a792-44fe9c640bc8
             userCondition: null
             warning: null
             width: 100
         name: Content
-        uid: 764fa209-1710-4061-adde-b5507d3af420
+        uid: df6fcf85-c580-4960-9d3c-50bb8b8a45b3
         userCondition: null
-handle: entLocations
+handle: entDepartments
 hasTitleField: true
-icon: apartment
-name: 'Ent Locations'
+icon: house
+name: 'Ent Departments'
 showSlugField: true
 showStatusField: true
 slugTranslationKeyFormat: null

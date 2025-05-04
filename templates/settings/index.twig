@@ -199,7 +199,7 @@
 
 
     <div class="add-building-form">
-        <h2>Add New location</h2>
+        <h2>Add New Building</h2>
         
         {% if success is defined %}
             <div class="notification success">
@@ -217,10 +217,10 @@
             {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('locations').entryTypes[0].id) }}
             {{ hiddenInput('enabled', '1') }}
             {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
-            {{ successMessageInput('Location has been added successfully!') }}
+            {{ successMessageInput('Building has been added successfully!') }}
             
             <div class="field">
-                <label for="title">Location Name *</label>
+                <label for="title">Building Name *</label>
                 {{ input('text', 'title', entry.title, {
                     id: 'title',
                     required: true
@@ -231,37 +231,85 @@
             </div>
             
             <div class="submit">
-                <button type="submit" class="btn">Add Location</button>
+                <button type="submit" class="btn">Add Building</button>
+            </div>
+        </form>
+    </div>
+    
+    {# Department form - initially hidden, shown via JavaScript #}
+    <div id="add-department-form" class="add-department-form" style="display: none;">
+        <h2>Add New Department</h2>
+        
+        <form method="post" accept-charset="UTF-8">
+            {{ csrfInput() }}
+            {{ actionInput('entries/save-entry') }}
+            {{ redirectInput('success?slug={slug}') }}
+            {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('locations').id) }}
+            {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('locations').entryTypes[1].id) }}
+            {{ hiddenInput('enabled', '1') }}
+            {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
+            {{ hiddenInput('fields[parentId]', '', {id: 'parent-id-field'}) }}
+            {{ successMessageInput('Department has been added successfully!') }}
+            
+            <div class="field">
+                <label for="department-title">Department Name *</label>
+                {{ input('text', 'title', '', {
+                    id: 'department-title',
+                    required: true
+                }) }}
+            </div>
+            
+            <div class="submit">
+                <button type="submit" class="btn">Add Department</button>
+                <button type="button" class="btn cancel-btn" id="cancel-department">Cancel</button>
             </div>
         </form>
     </div>
 
         <div class="buildings-list">
         <h2>Existing Locations</h2>
-        {% set locations = craft.entries()
+        {% set rootLocations = craft.entries()
             .section('locations')
+            .level(1)
             .orderBy('title asc')
             .all() %}
 
-        {% if locations|length %}
-            <table class="buildings-table">
-                <thead>
-                    <tr>
-                        <th>Location Name</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for location in locations %}
-                        <tr>
-                            <td><a href="{{ location.url }}">{{ location.title }}</a></td>
-                            <td class="actions-column">
+        {% if rootLocations|length %}
+            <div class="locations-tree">
+                {% for location in rootLocations %}
+                    <div class="location-item level-1">
+                        <div class="location-header">
+                            <span class="location-title">{{ location.title }}</span>
+                            <div class="location-actions">
                                 <a href="{{ location.cpEditUrl }}" class="btn small">Edit</a>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                                <a href="#" class="btn small add-department" data-parent-id="{{ location.id }}">Add Department</a>
+                            </div>
+                        </div>
+                        
+                        {% set childLocations = craft.entries()
+                            .section('locations')
+                            .descendantOf(location)
+                            .level(2)
+                            .orderBy('title asc')
+                            .all() %}
+                            
+                        {% if childLocations|length %}
+                            <div class="location-children">
+                                {% for child in childLocations %}
+                                    <div class="location-item level-2">
+                                        <div class="location-header">
+                                            <span class="location-title">{{ child.title }}</span>
+                                            <div class="location-actions">
+                                                <a href="{{ child.cpEditUrl }}" class="btn small">Edit</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
         {% else %}
             <p><em>No locations have been added yet.</em></p>
         {% endif %}
@@ -331,6 +379,62 @@
             display: block;
         }
         
+        /* Locations Tree Styles */
+        .locations-tree {
+            margin-top: 20px;
+        }
+        
+        .location-item {
+            margin-bottom: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+        
+        .location-header {
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .location-title {
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        
+        .location-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .location-children {
+            padding: 0 0 10px 30px;
+        }
+        
+        .level-1 {
+            background-color: #f5f5f5;
+        }
+        
+        .level-2 {
+            background-color: #ffffff;
+            border-left: 3px solid #0d6efd;
+            margin-top: 8px;
+        }
+        
+        .add-department-form {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .cancel-btn {
+            background-color: #6c757d;
+            margin-left: 10px;
+        }
+        
         .section-cards {
             display: flex;
             flex-wrap: wrap;
@@ -396,6 +500,42 @@
                     document.querySelector(target).classList.add('active');
                 });
             });
+            
+            // Department form handling
+            const addDepartmentButtons = document.querySelectorAll('.add-department');
+            const departmentForm = document.getElementById('add-department-form');
+            const parentIdField = document.getElementById('parent-id-field');
+            const cancelButton = document.getElementById('cancel-department');
+            
+            addDepartmentButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Get the parent ID from the button's data attribute
+                    const parentId = this.getAttribute('data-parent-id');
+                    
+                    // Set the parentId field value
+                    parentIdField.value = parentId;
+                    
+                    // Show the department form
+                    departmentForm.style.display = 'block';
+                    
+                    // Scroll to the form
+                    departmentForm.scrollIntoView({ behavior: 'smooth' });
+                });
+            });
+            
+            // Cancel button click handler
+            if (cancelButton) {
+                cancelButton.addEventListener('click', function() {
+                    // Hide the form
+                    departmentForm.style.display = 'none';
+                    
+                    // Clear the form fields
+                    document.getElementById('department-title').value = '';
+                    parentIdField.value = '';
+                });
+            }
         });
     </script>
 {% endblock %}
