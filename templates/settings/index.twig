@@ -17,171 +17,182 @@
                 <div class="settings-section">
 
 
-    <div class="header-with-nav">
-        <h1>Staff Management</h1>
-        <div class="nav-links">
-            <a href="{{ siteUrl('staff') }}" class="btn">← Back to Staff Management</a>
+    <div id="staff-management-app">
+        <div class="header-with-nav">
+            <h1>Staff Management</h1>
+            <div class="nav-links">
+                <a href="{{ siteUrl('staff') }}" class="btn">← Back to Staff Management</a>
+            </div>
         </div>
-    </div>
 
-    {# Display existing supervisors #}
-    <div class="supervisors-list">
-        <h2>Existing Supervisors</h2>
-        {% set supervisors = craft.entries()
-            .section('supervisors')
-            .orderBy('title asc')
-            .all() %}
+        <!-- Sub-navigation tabs for different staff types -->
+        <div class="staff-type-tabs">
+            <button class="staff-tab-btn" :class="{ active: activeStaffType === 'supervisors' }" @click="activeStaffType = 'supervisors'">Supervisors</button>
+            <button class="staff-tab-btn" :class="{ active: activeStaffType === 'porters' }" @click="activeStaffType = 'porters'">Porters</button>
+        </div>
 
-        {% if supervisors|length %}
-            <table class="supervisors-table">
-                <thead>
-                    <tr>
-                        <th>First Name</th>
-                        <th>Surname</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for supervisor in supervisors %}
-                        <tr>
-                            <td><a href="{{ supervisor.url }}">{{ supervisor.title }}</a></td>
-                            <td>{{ supervisor.fd_surname }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <p><em>No supervisors have been added yet.</em></p>
-        {% endif %}
-    </div>
+        <!-- Staff management container -->
+        <div class="staff-management-container">
+            <!-- Supervisors Section -->
+            <div v-show="activeStaffType === 'supervisors'" class="staff-section supervisors-section">
+                <div class="add-staff-form">
+                    <h2>Add New Supervisor</h2>
+                    
+                    {% if success is defined and staffType == 'supervisor' %}
+                        <div class="notification success">
+                            Supervisor has been saved successfully!
+                        </div>
+                    {% endif %}
 
-    {# Form to add new supervisor #}
-    <div class="add-supervisor-form">
-        <h2>Add New Supervisor</h2>
-        
-        {% if success is defined %}
-            <div class="notification success">
-                Supervisor has been saved successfully!
+                    {% set supervisorEntry = entry is defined and staffType == 'supervisor' ? entry : craft.entries.section('supervisors').one() ?? create('craft\\elements\\Entry') %}
+                    
+                    <form method="post" accept-charset="UTF-8">
+                        {{ csrfInput() }}
+                        {{ actionInput('entries/save-entry') }}
+                        {{ redirectInput(siteUrl('settings?staffType=supervisor')) }}
+                        {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('supervisors').id) }}
+                        {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('supervisors').entryTypes[0].id) }}
+                        {{ hiddenInput('enabled', '1') }}
+                        {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
+                        
+                        <div class="field-group">
+                            <div class="field">
+                                <label for="supervisor-title">First Name *</label>
+                                {{ input('text', 'title', supervisorEntry.title, {
+                                    id: 'supervisor-title',
+                                    required: true,
+                                    class: 'form-control'
+                                }) }}
+                                {% if supervisorEntry is defined and supervisorEntry.hasErrors('title') %}
+                                    <span class="error">{{ supervisorEntry.getFirstError('title') }}</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="field">
+                                <label for="supervisor-surname">Surname *</label>
+                                {{ input('text', 'fields[fd_surname]', supervisorEntry.fd_surname, {
+                                    id: 'supervisor-surname',
+                                    required: true,
+                                    class: 'form-control'
+                                }) }}
+                                {% if supervisorEntry is defined and supervisorEntry.hasErrors('fd_surname') %}
+                                    <span class="error">{{ supervisorEntry.getFirstError('fd_surname') }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="submit">
+                            <button type="submit" class="btn primary-btn">Add Supervisor</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="staff-list">
+                    <h2>Existing Supervisors</h2>
+                    {% set supervisors = craft.entries()
+                        .section('supervisors')
+                        .orderBy('title asc')
+                        .all() %}
+
+                    {% if supervisors|length %}
+                        <div class="staff-cards">
+                            {% for supervisor in supervisors %}
+                                <div class="staff-card">
+                                    <div class="staff-card-header">
+                                        <h3 class="staff-name">{{ supervisor.title }} {{ supervisor.fd_surname }}</h3>
+                                    </div>
+                                    <div class="staff-card-actions">
+                                        <a href="{{ supervisor.cpEditUrl }}" class="btn small">Edit</a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="empty-state"><em>No supervisors have been added yet.</em></p>
+                    {% endif %}
+                </div>
             </div>
-        {% endif %}
 
-        {% set entry = entry is defined ? entry : craft.entries.section('supervisors').one() ?? create('craft\\elements\\Entry') %}
-        
-        <form method="post" accept-charset="UTF-8">
-            {{ csrfInput() }}
-            {{ actionInput('entries/save-entry') }}
-            {{ redirectInput('success?slug={slug}') }}
-            {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('supervisors').id) }}
-            {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('supervisors').entryTypes[0].id) }}
-            {{ hiddenInput('enabled', '1') }}
-            {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
-            {{ successMessageInput('Supervisor has been added successfully!') }}
-            
-            <div class="field">
-                <label for="title">First Name *</label>
-                {{ input('text', 'title', entry.title, {
-                    id: 'title',
-                    required: true
-                }) }}
-                {% if entry is defined and entry.hasErrors('title') %}
-                    <span class="error">{{ entry.getFirstError('title') }}</span>
-                {% endif %}
-            </div>
-            
-            <div class="field">
-                <label for="fields-fd_surname">Surname *</label>
-                {{ input('text', 'fields[fd_surname]', entry.fd_surname, {
-                    id: 'fields-fd_surname',
-                    required: true
-                }) }}
-                {% if entry is defined and entry.hasErrors('fd_surname') %}
-                    <span class="error">{{ entry.getFirstError('fd_surname') }}</span>
-                {% endif %}
-            </div>
-            
-            <div class="submit">
-                <button type="submit" class="btn">Add Supervisor</button>
-            </div>
-        </form>
-    </div>
+            <!-- Porters Section -->
+            <div v-show="activeStaffType === 'porters'" class="staff-section porters-section">
+                <div class="add-staff-form">
+                    <h2>Add New Porter</h2>
+                    
+                    {% if success is defined and staffType == 'porter' %}
+                        <div class="notification success">
+                            Porter has been saved successfully!
+                        </div>
+                    {% endif %}
 
+                    {% set porterEntry = entry is defined and staffType == 'porter' ? entry : craft.entries.section('porters').one() ?? create('craft\\elements\\Entry') %}
+                    
+                    <form method="post" accept-charset="UTF-8">
+                        {{ csrfInput() }}
+                        {{ actionInput('entries/save-entry') }}
+                        {{ redirectInput(siteUrl('settings?staffType=porter')) }}
+                        {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('porters').id) }}
+                        {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('porters').entryTypes[0].id) }}
+                        {{ hiddenInput('enabled', '1') }}
+                        {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
+                        
+                        <div class="field-group">
+                            <div class="field">
+                                <label for="porter-title">First Name *</label>
+                                {{ input('text', 'title', porterEntry.title, {
+                                    id: 'porter-title',
+                                    required: true,
+                                    class: 'form-control'
+                                }) }}
+                                {% if porterEntry is defined and porterEntry.hasErrors('title') %}
+                                    <span class="error">{{ porterEntry.getFirstError('title') }}</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="field">
+                                <label for="porter-surname">Surname *</label>
+                                {{ input('text', 'fields[fd_surname]', porterEntry.fd_surname, {
+                                    id: 'porter-surname',
+                                    required: true,
+                                    class: 'form-control'
+                                }) }}
+                                {% if porterEntry is defined and porterEntry.hasErrors('fd_surname') %}
+                                    <span class="error">{{ porterEntry.getFirstError('fd_surname') }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="submit">
+                            <button type="submit" class="btn primary-btn">Add Porter</button>
+                        </div>
+                    </form>
+                </div>
 
-    <div class="porters-list">
-        <h2>Existing Porters</h2>
-        {% set porters = craft.entries()
-            .section('porters')
-            .orderBy('title asc')
-            .all() %}
+                <div class="staff-list">
+                    <h2>Existing Porters</h2>
+                    {% set porters = craft.entries()
+                        .section('porters')
+                        .orderBy('title asc')
+                        .all() %}
 
-        {% if porters|length %}
-            <table class="porters-table">
-                <thead>
-                    <tr>
-                        <th>First Name</th>
-                        <th>Surname</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for porter in porters %}
-                        <tr>
-                            <td><a href="{{ porter.url }}">{{ porter.title }}</a></td>
-                            <td>{{ porter.fd_surname }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <p><em>No porters have been added yet.</em></p>
-        {% endif %}
-    </div>
-
-    {# Form to add new porter #}
-    <div class="add-porter-form">
-        <h2>Add New Porter</h2>
-        
-        {% if success is defined %}
-            <div class="notification success">
-                Porter has been saved successfully!
+                    {% if porters|length %}
+                        <div class="staff-cards">
+                            {% for porter in porters %}
+                                <div class="staff-card">
+                                    <div class="staff-card-header">
+                                        <h3 class="staff-name">{{ porter.title }} {{ porter.fd_surname }}</h3>
+                                    </div>
+                                    <div class="staff-card-actions">
+                                        <a href="{{ porter.cpEditUrl }}" class="btn small">Edit</a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="empty-state"><em>No porters have been added yet.</em></p>
+                    {% endif %}
+                </div>
             </div>
-        {% endif %}
-
-        {% set entry = entry is defined ? entry : craft.entries.section('porters').one() ?? create('craft\\elements\\Entry') %}
-        
-        <form method="post" accept-charset="UTF-8">
-            {{ csrfInput() }}
-            {{ actionInput('entries/save-entry') }}
-            {{ redirectInput('success?slug={slug}') }}
-            {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('porters').id) }}
-            {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('porters').entryTypes[0].id) }}
-            {{ hiddenInput('enabled', '1') }}
-            {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
-            {{ successMessageInput('Porter has been added successfully!') }}
-            
-            <div class="field">
-                <label for="title">First Name *</label>
-                {{ input('text', 'title', entry.title, {
-                    id: 'title',
-                    required: true
-                }) }}
-                {% if entry is defined and entry.hasErrors('title') %}
-                    <span class="error">{{ entry.getFirstError('title') }}</span>
-                {% endif %}
-            </div>
-            
-            <div class="field">
-                <label for="fields-fd_surname">Surname *</label>
-                {{ input('text', 'fields[fd_surname]', entry.fd_surname, {
-                    id: 'fields-fd_surname',
-                    required: true
-                }) }}
-                {% if entry is defined and entry.hasErrors('fd_surname') %}
-                    <span class="error">{{ entry.getFirstError('fd_surname') }}</span>
-                {% endif %}
-            </div>
-            
-            <div class="submit">
-                <button type="submit" class="btn">Add Porter</button>
-            </div>
-        </form>
+        </div>
     </div>
                 </div>
             </div>
@@ -496,6 +507,90 @@
             color: #155724;
         }
         
+        /* =============== Staff Management Styles =============== */
+        .staff-type-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .staff-tab-btn {
+            padding: 10px 20px;
+            background: none;
+            border: 1px solid transparent;
+            border-bottom: none;
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-right: 5px;
+            margin-bottom: -1px;
+            transition: all 0.2s ease;
+        }
+        
+        .staff-tab-btn.active {
+            background-color: #fff;
+            border-color: #dee2e6;
+            border-bottom-color: #fff;
+            color: #0d6efd;
+        }
+        
+        .staff-section {
+            margin-top: 20px;
+        }
+        
+        .staff-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .staff-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            padding: 15px;
+            transition: all 0.2s ease;
+        }
+        
+        .staff-card:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        
+        .staff-card-header {
+            margin-bottom: 10px;
+        }
+        
+        .staff-name {
+            font-size: 1.1em;
+            margin: 0;
+            color: #333;
+        }
+        
+        .staff-card-actions {
+            margin-top: 10px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        .empty-state {
+            color: #6c757d;
+            font-style: italic;
+            margin: 20px 0;
+        }
+        
+        .field-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .field-group .field {
+            flex: 1;
+        }
+        
         /* =============== Form Styles =============== */
         .field {
             margin-bottom: 15px;
@@ -771,6 +866,20 @@
          * Initialize all hierarchical data management apps
          */
         function initHierarchicalApps() {
+            // Staff Management App
+            const staffApp = Vue.createApp({
+                data() {
+                    return {
+                        activeStaffType: 'supervisors'
+                    }
+                }
+            });
+            
+            const staffAppContainer = document.getElementById('staff-management-app');
+            if (staffAppContainer) {
+                staffApp.mount('#staff-management-app');
+            }
+            
             // Location Management App
             const locationsApp = createHierarchicalApp({
                 activeItemIdProperty: 'activeBuildingId',
