@@ -2,10 +2,10 @@ defaultPlacement: end
 enableVersioning: true
 entryTypes:
   -
-    uid: a6ca13d7-bc6b-4c17-a310-b0fcaa34804d # Ent Buildings
-handle: buildings
+    uid: a6ca13d7-bc6b-4c17-a310-b0fcaa34804d # Ent Locations
+handle: locations
 maxAuthors: 1
-name: Buildings
+name: Locations
 previewTargets:
   -
     __assoc__:
@@ -25,4 +25,7 @@ siteSettings:
     hasUrls: true
     template: buildings/_entry.twig
     uriFormat: 'buildings/{slug}'
-type: channel
+structure:
+  maxLevels: 2
+  uid: f45aa08e-b7fb-4c84-9451-139a3f043937
+type: structure

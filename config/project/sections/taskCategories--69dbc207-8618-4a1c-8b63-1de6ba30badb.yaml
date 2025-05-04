@@ -2,10 +2,10 @@ defaultPlacement: end
 enableVersioning: true
 entryTypes:
   -
-    uid: f5051ed3-2649-4f41-a303-9d3b06368f94 # Ent Departments
-handle: departments
+    uid: a029653d-b401-4157-b33a-c398463b10b2 # Task Categories
+handle: taskCategories
 maxAuthors: 1
-name: Departments
+name: 'Task Categories'
 previewTargets:
   -
     __assoc__:
@@ -23,6 +23,9 @@ siteSettings:
   6a92aa12-7350-4d77-a9af-a478cee25845: # Porter Craft
     enabledByDefault: true
     hasUrls: true
-    template: departments/_entry.twig
-    uriFormat: 'departments/{slug}'
-type: channel
+    template: task-types/_entry.twig
+    uriFormat: 'task-types/{slug}'
+structure:
+  maxLevels: 2
+  uid: 6d82f239-d875-460d-9894-247138a60268
+type: structure

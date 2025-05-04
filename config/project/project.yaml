@@ -1,20 +1,75 @@
-dateModified: 1746274903
+dateModified: 1746368667
+elementSources:
+  craft\elements\Entry:
+    -
+      defaultSort:
+        - postDate
+        - desc
+      defaultViewMode: ''
+      disabled: false
+      key: '*'
+      tableAttributes:
+        - status
+        - section
+        - postDate
+        - expiryDate
+        - link
+      type: native
+    -
+      defaultSort:
+        - structure
+        - asc
+      defaultViewMode: ''
+      disabled: false
+      key: 'section:5f52388b-f9f4-4132-81c1-55802c67d8cc' # Locations
+      tableAttributes:
+        - status
+      type: native
+    -
+      defaultSort:
+        - structure
+        - asc
+      defaultViewMode: ''
+      disabled: false
+      key: 'section:69dbc207-8618-4a1c-8b63-1de6ba30badb' # Task Categories
+      tableAttributes:
+        - status
+        - postDate
+        - expiryDate
+        - link
+      type: native
+    -
+      key: 'section:f44b07d1-48b3-48fe-8bfe-f8f12f5ed053' # Supervisors
+      type: native
+    -
+      key: 'section:b1d95329-57ac-49cf-90d7-b40a1bdbcd01' # Porters
+      type: native
+    -
+      key: 'section:ceac8342-76fb-422f-a0a3-efb6a2e94704'
+      type: native
 email:
   fromEmail: access@hypha.media
   fromName: 'Porter Craft'
   transportType: craft\mail\transportadapters\Sendmail
+graphql:
+  publicToken:
+    enabled: false
+    expiryDate: null
 meta:
   __names__:
     0ddc1c53-595b-487f-8473-eece2e4861de: 'Ent Supervisors' # Ent Supervisors
-    5f52388b-f9f4-4132-81c1-55802c67d8cc: Buildings # Buildings
+    5f52388b-f9f4-4132-81c1-55802c67d8cc: Locations # Locations
     6a92aa12-7350-4d77-a9af-a478cee25845: 'Porter Craft' # Porter Craft
+    9b23eb2f-c8ff-451c-8081-3368f7e59312: Departments # Departments
+    12e483f5-2e3d-4508-8d01-558050206ffe: Building # Building
+    69dbc207-8618-4a1c-8b63-1de6ba30badb: 'Task Categories' # Task Categories
     2327a6f6-417b-4334-b051-5d9d0a4d5c02: 'Plain Text' # Plain Text
-    a6ca13d7-bc6b-4c17-a310-b0fcaa34804d: 'Ent Buildings' # Ent Buildings
+    a029653d-b401-4157-b33a-c398463b10b2: 'Task Categories' # Task Categories
+    a5d142a4-e455-4840-837d-102f7c4cc78c: Departments # Departments
+    a6ca13d7-bc6b-4c17-a310-b0fcaa34804d: 'Ent Locations' # Ent Locations
     b1d95329-57ac-49cf-90d7-b40a1bdbcd01: Porters # Porters
-    ceac8342-76fb-422f-a0a3-efb6a2e94704: Departments # Departments
     ebb3dbd8-552b-48fb-aebb-0c13143be157: 'Porter Craft' # Porter Craft
     f44b07d1-48b3-48fe-8bfe-f8f12f5ed053: Supervisors # Supervisors
-    f5051ed3-2649-4f41-a303-9d3b06368f94: 'Ent Departments' # Ent Departments
     fe915955-f57d-4ec4-bf9c-92c417a8e11d: 'Ent Porters' # Ent Porters
 system:
   edition: solo

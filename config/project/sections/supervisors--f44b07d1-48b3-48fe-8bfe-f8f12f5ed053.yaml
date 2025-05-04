@@ -13,11 +13,11 @@ previewTargets:
         - label
         - 'Primary entry page'
       -
-        - urlFormat
-        - '{url}'
-      -
         - refresh
         - '1'
+      -
+        - urlFormat
+        - '{url}'
 propagationMethod: all
 siteSettings:
   6a92aa12-7350-4d77-a9af-a478cee25845: # Porter Craft

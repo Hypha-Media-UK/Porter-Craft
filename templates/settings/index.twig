@@ -1,0 +1,401 @@
+{% extends "_layout" %}
+
+{% block content %}
+    <div class="settings-page">
+        <h1>Settings</h1>
+        
+        <div class="settings-navigation">
+            <ul class="nav-tabs">
+                <li class="nav-item"><a href="#staff-management" class="nav-link active" data-bs-toggle="tab">Staff Management</a></li>
+                <li class="nav-item"><a href="#buildings-departments" class="nav-link" data-bs-toggle="tab">Buildings & Departments</a></li>
+                <li class="nav-item"><a href="#task-types" class="nav-link" data-bs-toggle="tab">Task Types</a></li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <!-- Staff Management Tab -->
+            <div class="tab-pane active" id="staff-management">
+                <div class="settings-section">
+
+
+    <div class="header-with-nav">
+        <h1>Staff Management</h1>
+        <div class="nav-links">
+            <a href="{{ siteUrl('staff') }}" class="btn">← Back to Staff Management</a>
+        </div>
+    </div>
+
+    {# Display existing supervisors #}
+    <div class="supervisors-list">
+        <h2>Existing Supervisors</h2>
+        {% set supervisors = craft.entries()
+            .section('supervisors')
+            .orderBy('title asc')
+            .all() %}
+
+        {% if supervisors|length %}
+            <table class="supervisors-table">
+                <thead>
+                    <tr>
+                        <th>First Name</th>
+                        <th>Surname</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for supervisor in supervisors %}
+                        <tr>
+                            <td><a href="{{ supervisor.url }}">{{ supervisor.title }}</a></td>
+                            <td>{{ supervisor.fd_surname }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p><em>No supervisors have been added yet.</em></p>
+        {% endif %}
+    </div>
+
+    {# Form to add new supervisor #}
+    <div class="add-supervisor-form">
+        <h2>Add New Supervisor</h2>
+        
+        {% if success is defined %}
+            <div class="notification success">
+                Supervisor has been saved successfully!
+            </div>
+        {% endif %}
+
+        {% set entry = entry is defined ? entry : craft.entries.section('supervisors').one() ?? create('craft\\elements\\Entry') %}
+        
+        <form method="post" accept-charset="UTF-8">
+            {{ csrfInput() }}
+            {{ actionInput('entries/save-entry') }}
+            {{ redirectInput('success?slug={slug}') }}
+            {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('supervisors').id) }}
+            {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('supervisors').entryTypes[0].id) }}
+            {{ hiddenInput('enabled', '1') }}
+            {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
+            {{ successMessageInput('Supervisor has been added successfully!') }}
+            
+            <div class="field">
+                <label for="title">First Name *</label>
+                {{ input('text', 'title', entry.title, {
+                    id: 'title',
+                    required: true
+                }) }}
+                {% if entry is defined and entry.hasErrors('title') %}
+                    <span class="error">{{ entry.getFirstError('title') }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="field">
+                <label for="fields-fd_surname">Surname *</label>
+                {{ input('text', 'fields[fd_surname]', entry.fd_surname, {
+                    id: 'fields-fd_surname',
+                    required: true
+                }) }}
+                {% if entry is defined and entry.hasErrors('fd_surname') %}
+                    <span class="error">{{ entry.getFirstError('fd_surname') }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="submit">
+                <button type="submit" class="btn">Add Supervisor</button>
+            </div>
+        </form>
+    </div>
+
+
+    <div class="porters-list">
+        <h2>Existing Porters</h2>
+        {% set porters = craft.entries()
+            .section('porters')
+            .orderBy('title asc')
+            .all() %}
+
+        {% if porters|length %}
+            <table class="porters-table">
+                <thead>
+                    <tr>
+                        <th>First Name</th>
+                        <th>Surname</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for porter in porters %}
+                        <tr>
+                            <td><a href="{{ porter.url }}">{{ porter.title }}</a></td>
+                            <td>{{ porter.fd_surname }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p><em>No porters have been added yet.</em></p>
+        {% endif %}
+    </div>
+
+    {# Form to add new porter #}
+    <div class="add-porter-form">
+        <h2>Add New Porter</h2>
+        
+        {% if success is defined %}
+            <div class="notification success">
+                Porter has been saved successfully!
+            </div>
+        {% endif %}
+
+        {% set entry = entry is defined ? entry : craft.entries.section('porters').one() ?? create('craft\\elements\\Entry') %}
+        
+        <form method="post" accept-charset="UTF-8">
+            {{ csrfInput() }}
+            {{ actionInput('entries/save-entry') }}
+            {{ redirectInput('success?slug={slug}') }}
+            {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('porters').id) }}
+            {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('porters').entryTypes[0].id) }}
+            {{ hiddenInput('enabled', '1') }}
+            {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
+            {{ successMessageInput('Porter has been added successfully!') }}
+            
+            <div class="field">
+                <label for="title">First Name *</label>
+                {{ input('text', 'title', entry.title, {
+                    id: 'title',
+                    required: true
+                }) }}
+                {% if entry is defined and entry.hasErrors('title') %}
+                    <span class="error">{{ entry.getFirstError('title') }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="field">
+                <label for="fields-fd_surname">Surname *</label>
+                {{ input('text', 'fields[fd_surname]', entry.fd_surname, {
+                    id: 'fields-fd_surname',
+                    required: true
+                }) }}
+                {% if entry is defined and entry.hasErrors('fd_surname') %}
+                    <span class="error">{{ entry.getFirstError('fd_surname') }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="submit">
+                <button type="submit" class="btn">Add Porter</button>
+            </div>
+        </form>
+    </div>
+                </div>
+            </div>
+            
+            <!-- Buildings & Departments Tab -->
+            <div class="tab-pane" id="buildings-departments">
+                <div class="settings-section">
+
+    <div class="header-with-nav">
+        <h1>Locations Management</h1>
+        <div class="nav-links">
+            <a href="{{ siteUrl('settings') }}" class="btn">← Back to Settings</a>
+        </div>
+    </div>
+
+
+    <div class="add-building-form">
+        <h2>Add New location</h2>
+        
+        {% if success is defined %}
+            <div class="notification success">
+                Building has been saved successfully!
+            </div>
+        {% endif %}
+
+        {% set entry = entry is defined ? entry : craft.entries.section('locations').one() ?? create('craft\\elements\\Entry') %}
+        
+        <form method="post" accept-charset="UTF-8">
+            {{ csrfInput() }}
+            {{ actionInput('entries/save-entry') }}
+            {{ redirectInput('success?slug={slug}') }}
+            {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('locations').id) }}
+            {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('locations').entryTypes[0].id) }}
+            {{ hiddenInput('enabled', '1') }}
+            {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
+            {{ successMessageInput('Location has been added successfully!') }}
+            
+            <div class="field">
+                <label for="title">Location Name *</label>
+                {{ input('text', 'title', entry.title, {
+                    id: 'title',
+                    required: true
+                }) }}
+                {% if entry is defined and entry.hasErrors('title') %}
+                    <span class="error">{{ entry.getFirstError('title') }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="submit">
+                <button type="submit" class="btn">Add Location</button>
+            </div>
+        </form>
+    </div>
+
+        <div class="buildings-list">
+        <h2>Existing Locations</h2>
+        {% set locations = craft.entries()
+            .section('locations')
+            .orderBy('title asc')
+            .all() %}
+
+        {% if locations|length %}
+            <table class="buildings-table">
+                <thead>
+                    <tr>
+                        <th>Location Name</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for location in locations %}
+                        <tr>
+                            <td><a href="{{ location.url }}">{{ location.title }}</a></td>
+                            <td class="actions-column">
+                                <a href="{{ location.cpEditUrl }}" class="btn small">Edit</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p><em>No locations have been added yet.</em></p>
+        {% endif %}
+    </div>
+
+                </div>
+            </div>
+            
+            <!-- Task Types Tab -->
+            <div class="tab-pane" id="task-types">
+                <div class="settings-section">
+                    <div class="section-notice">
+                        <p>This section will allow you to create different types of tasks that can be assigned to porters.</p>
+                        <p>Task Types are not implemented in the current version.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <style>
+        .settings-page h1 {
+            margin-bottom: 30px;
+        }
+        
+        .settings-navigation {
+            margin-bottom: 30px;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .nav-item {
+            margin-bottom: -1px;
+        }
+        
+        .nav-link {
+            display: block;
+            padding: 10px 15px;
+            margin-right: 2px;
+            border: 1px solid transparent;
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+            text-decoration: none;
+        }
+        
+        .nav-link.active {
+            background-color: #fff;
+            border-color: #dee2e6 #dee2e6 #fff;
+            color: #0d6efd;
+        }
+        
+        .tab-content {
+            padding: 20px 0;
+        }
+        
+        .tab-pane {
+            display: none;
+        }
+        
+        .tab-pane.active {
+            display: block;
+        }
+        
+        .section-cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .settings-card {
+            flex: 1;
+            min-width: 300px;
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            padding: 20px;
+        }
+        
+        .settings-card h2 {
+            margin-top: 0;
+            color: #0d6efd;
+        }
+        
+        .card-count {
+            margin: 15px 0;
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .card-actions {
+            margin-top: 20px;
+        }
+        
+        .section-notice {
+            background-color: #f8f9fa;
+            border-left: 4px solid #0d6efd;
+            padding: 15px;
+            margin: 20px 0;
+        }
+    </style>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Simple tab navigation
+            const tabs = document.querySelectorAll('.nav-link');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Hide all tab panes
+                    document.querySelectorAll('.tab-pane').forEach(pane => {
+                        pane.classList.remove('active');
+                    });
+                    
+                    // Deactivate all tabs
+                    tabs.forEach(t => {
+                        t.classList.remove('active');
+                    });
+                    
+                    // Activate clicked tab
+                    this.classList.add('active');
+                    
+                    // Show corresponding pane
+                    const target = this.getAttribute('href');
+                    document.querySelector(target).classList.add('active');
+                });
+            });
+        });
+    </script>
+{% endblock %}

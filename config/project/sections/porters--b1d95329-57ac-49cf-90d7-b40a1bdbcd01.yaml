@@ -25,7 +25,4 @@ siteSettings:
     hasUrls: true
     template: porters/_entry.twig
     uriFormat: 'porters/{slug}'
-structure:
-  maxLevels: 1
-  uid: a210ba69-a5b6-41ee-85e4-be3c257b2891
-type: structure
+type: channel

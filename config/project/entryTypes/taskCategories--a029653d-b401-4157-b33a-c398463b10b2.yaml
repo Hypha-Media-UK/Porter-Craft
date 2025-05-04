@@ -1,6 +1,6 @@
 color: null
 fieldLayouts:
-  c1805f47-7d20-47d4-8ae0-99427a38111c:
+  d9d80786-cc00-4b78-935e-37137fc550d1:
     tabs:
       -
         elementCondition: null
@@ -10,7 +10,7 @@ fieldLayouts:
             autocomplete: false
             autocorrect: true
             class: null
-            dateAdded: '2025-05-03T11:54:36+00:00'
+            dateAdded: '2025-05-04T14:17:14+00:00'
             disabled: false
             elementCondition: null
             id: null
@@ -31,17 +31,17 @@ fieldLayouts:
             tip: null
             title: null
             type: craft\fieldlayoutelements\entries\EntryTitleField
-            uid: c69ae4d9-9663-40c1-ab14-bf600cda66c3
+            uid: 54dcecea-2d33-48a4-860c-63214f99c312
             userCondition: null
             warning: null
             width: 100
         name: Content
-        uid: 764fa209-1710-4061-adde-b5507d3af420
+        uid: 3e3f9d86-7084-4296-993e-a1f437d98e36
         userCondition: null
-handle: entBuildings
+handle: taskCategories
 hasTitleField: true
-icon: building
-name: 'Ent Buildings'
+icon: null
+name: 'Task Categories'
 showSlugField: true
 showStatusField: true
 slugTranslationKeyFormat: null
