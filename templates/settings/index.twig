@@ -98,11 +98,41 @@
                         <div class="staff-cards">
                             {% for supervisor in supervisors %}
                                 <div class="staff-card">
-                                    <div class="staff-card-header">
-                                        <h3 class="staff-name">{{ supervisor.title }} {{ supervisor.fd_surname }}</h3>
+                                    <div v-if="editingSupervisorId === {{ supervisor.id }}" class="staff-card-edit-form">
+                                        <form @submit.prevent="submitStaffEdit($event, {{ supervisor.id }}, 'supervisor')">
+                                            {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('supervisors').id) }}
+                                            {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('supervisors').entryTypes[0].id) }}
+                                            {{ actionInput('entries/save-entry') }}
+                                            {{ hiddenInput('enabled', '1') }}
+                                            {{ hiddenInput('id', supervisor.id) }}
+                                            
+                                            <div class="inline-field-group">
+                                                <div class="field">
+                                                    <label for="edit-supervisor-title-{{ supervisor.id }}">First Name</label>
+                                                    <input type="text" name="title" id="edit-supervisor-title-{{ supervisor.id }}" 
+                                                           required value="{{ supervisor.title }}" class="form-control">
+                                                </div>
+                                                <div class="field">
+                                                    <label for="edit-supervisor-surname-{{ supervisor.id }}">Surname</label>
+                                                    <input type="text" name="fields[fd_surname]" id="edit-supervisor-surname-{{ supervisor.id }}"
+                                                           required value="{{ supervisor.fd_surname }}" class="form-control">
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="inline-edit-actions">
+                                                <button type="submit" class="btn small">Save</button>
+                                                <button type="button" class="btn small cancel-btn" @click="cancelEdit('supervisor')">Cancel</button>
+                                            </div>
+                                        </form>
                                     </div>
-                                    <div class="staff-card-actions">
-                                        <a href="{{ supervisor.cpEditUrl }}" class="btn small">Edit</a>
+                                    
+                                    <div v-else class="staff-card-content">
+                                        <div class="staff-card-header">
+                                            <h3 class="staff-name">{{ supervisor.title }} {{ supervisor.fd_surname }}</h3>
+                                        </div>
+                                        <div class="staff-card-actions">
+                                            <button @click="startEditing({{ supervisor.id }}, 'supervisor')" class="btn small">Edit</button>
+                                        </div>
                                     </div>
                                 </div>
                             {% endfor %}
@@ -178,11 +208,41 @@
                         <div class="staff-cards">
                             {% for porter in porters %}
                                 <div class="staff-card">
-                                    <div class="staff-card-header">
-                                        <h3 class="staff-name">{{ porter.title }} {{ porter.fd_surname }}</h3>
+                                    <div v-if="editingPorterId === {{ porter.id }}" class="staff-card-edit-form">
+                                        <form @submit.prevent="submitStaffEdit($event, {{ porter.id }}, 'porter')">
+                                            {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('porters').id) }}
+                                            {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('porters').entryTypes[0].id) }}
+                                            {{ actionInput('entries/save-entry') }}
+                                            {{ hiddenInput('enabled', '1') }}
+                                            {{ hiddenInput('id', porter.id) }}
+                                            
+                                            <div class="inline-field-group">
+                                                <div class="field">
+                                                    <label for="edit-porter-title-{{ porter.id }}">First Name</label>
+                                                    <input type="text" name="title" id="edit-porter-title-{{ porter.id }}" 
+                                                           required value="{{ porter.title }}" class="form-control">
+                                                </div>
+                                                <div class="field">
+                                                    <label for="edit-porter-surname-{{ porter.id }}">Surname</label>
+                                                    <input type="text" name="fields[fd_surname]" id="edit-porter-surname-{{ porter.id }}"
+                                                           required value="{{ porter.fd_surname }}" class="form-control">
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="inline-edit-actions">
+                                                <button type="submit" class="btn small">Save</button>
+                                                <button type="button" class="btn small cancel-btn" @click="cancelEdit('porter')">Cancel</button>
+                                            </div>
+                                        </form>
                                     </div>
-                                    <div class="staff-card-actions">
-                                        <a href="{{ porter.cpEditUrl }}" class="btn small">Edit</a>
+                                    
+                                    <div v-else class="staff-card-content">
+                                        <div class="staff-card-header">
+                                            <h3 class="staff-name">{{ porter.title }} {{ porter.fd_surname }}</h3>
+                                        </div>
+                                        <div class="staff-card-actions">
+                                            <button @click="startEditing({{ porter.id }}, 'porter')" class="btn small">Edit</button>
+                                        </div>
                                     </div>
                                 </div>
                             {% endfor %}
@@ -254,11 +314,28 @@
                     {% for location in rootLocations %}
                         <div class="location-item level-1">
                             <div class="location-header">
-                                <span class="location-title">{{ location.title }}</span>
-                                <div class="location-actions">
-                                    <a href="{{ location.cpEditUrl }}" class="btn small">Edit</a>
-                                    <button class="btn small add-department-btn" @click="showAddForm({{ location.id }})">Add Department</button>
-                                </div>
+                                                <span v-if="editingBuildingId === {{ location.id }}" class="location-title-edit">
+                                                    <form @submit.prevent="submitBuildingEdit($event, {{ location.id }})">
+                                                        {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('locations').id) }}
+                                                        {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('locations').entryTypes[0].id) }}
+                                                        {{ actionInput('entries/save-entry') }}
+                                                        {{ hiddenInput('enabled', '1') }}
+                                                        {{ hiddenInput('id', location.id) }}
+                                                        
+                                                        <div class="inline-edit-field">
+                                                            <input type="text" name="title" required value="{{ location.title }}" class="form-control">
+                                                            <div class="inline-edit-actions">
+                                                                <button type="submit" class="btn small">Save</button>
+                                                                <button type="button" class="btn small cancel-btn" @click="cancelBuildingEdit()">Cancel</button>
+                                                            </div>
+                                                        </div>
+                                                    </form>
+                                                </span>
+                                                <span v-else class="location-title">{{ location.title }}</span>
+                                                <div class="location-actions">
+                                                    <button @click="startBuildingEdit({{ location.id }})" class="btn small">Edit</button>
+                                                    <button class="btn small add-department-btn" @click="showAddForm({{ location.id }})">Add Department</button>
+                                                </div>
                             </div>
                             
                             <!-- Inline department form - shown/hidden with Vue -->
@@ -300,9 +377,27 @@
                                     {% for child in childLocations %}
                                         <div class="location-item level-2">
                                             <div class="location-header">
-                                                <span class="location-title">{{ child.title }}</span>
+                                                <span v-if="editingDepartmentId === {{ child.id }}" class="location-title-edit">
+                                                    <form @submit.prevent="submitDepartmentEdit($event, {{ child.id }})">
+                                                        {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('locations').id) }}
+                                                        {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('locations').entryTypes[1].id) }}
+                                                        {{ actionInput('entries/save-entry') }}
+                                                        {{ hiddenInput('enabled', '1') }}
+                                                        {{ hiddenInput('id', child.id) }}
+                                                        {{ hiddenInput('parentId', location.id) }}
+                                                        
+                                                        <div class="inline-edit-field">
+                                                            <input type="text" name="title" required value="{{ child.title }}" class="form-control">
+                                                            <div class="inline-edit-actions">
+                                                                <button type="submit" class="btn small">Save</button>
+                                                                <button type="button" class="btn small cancel-btn" @click="cancelDepartmentEdit()">Cancel</button>
+                                                            </div>
+                                                        </div>
+                                                    </form>
+                                                </span>
+                                                <span v-else class="location-title">{{ child.title }}</span>
                                                 <div class="location-actions">
-                                                    <a href="{{ child.cpEditUrl }}" class="btn small">Edit</a>
+                                                    <button @click="startDepartmentEdit({{ child.id }})" class="btn small">Edit</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -376,9 +471,26 @@
                                     {% for category in rootCategories %}
                                         <div class="category-item level-1">
                                             <div class="category-header">
-                                                <span class="category-title">{{ category.title }}</span>
+                                                <span v-if="editingCategoryId === {{ category.id }}" class="category-title-edit">
+                                                    <form @submit.prevent="submitCategoryEdit($event, {{ category.id }})">
+                                                        {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('taskCategories').id) }}
+                                                        {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('taskCategories').entryTypes[0].id) }}
+                                                        {{ actionInput('entries/save-entry') }}
+                                                        {{ hiddenInput('enabled', '1') }}
+                                                        {{ hiddenInput('id', category.id) }}
+                                                        
+                                                        <div class="inline-edit-field">
+                                                            <input type="text" name="title" required value="{{ category.title }}" class="form-control">
+                                                            <div class="inline-edit-actions">
+                                                                <button type="submit" class="btn small">Save</button>
+                                                                <button type="button" class="btn small cancel-btn" @click="cancelCategoryEdit()">Cancel</button>
+                                                            </div>
+                                                        </div>
+                                                    </form>
+                                                </span>
+                                                <span v-else class="category-title">{{ category.title }}</span>
                                                 <div class="category-actions">
-                                                    <a href="{{ category.cpEditUrl }}" class="btn small">Edit</a>
+                                                    <button @click="startCategoryEdit({{ category.id }})" class="btn small">Edit</button>
                                                     <button class="btn small add-subcategory-btn" @click="showAddForm({{ category.id }})">Add Subcategory</button>
                                                 </div>
                                             </div>
@@ -420,9 +532,27 @@
                                                     {% for child in childCategories %}
                                                         <div class="category-item level-2">
                                                             <div class="category-header">
-                                                                <span class="category-title">{{ child.title }}</span>
+                                                                <span v-if="editingSubcategoryId === {{ child.id }}" class="category-title-edit">
+                                                                    <form @submit.prevent="submitSubcategoryEdit($event, {{ child.id }})">
+                                                                        {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('taskCategories').id) }}
+                                                                        {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('taskCategories').entryTypes[0].id) }}
+                                                                        {{ actionInput('entries/save-entry') }}
+                                                                        {{ hiddenInput('enabled', '1') }}
+                                                                        {{ hiddenInput('id', child.id) }}
+                                                                        {{ hiddenInput('parentId', category.id) }}
+                                                                        
+                                                                        <div class="inline-edit-field">
+                                                                            <input type="text" name="title" required value="{{ child.title }}" class="form-control">
+                                                                            <div class="inline-edit-actions">
+                                                                                <button type="submit" class="btn small">Save</button>
+                                                                                <button type="button" class="btn small cancel-btn" @click="cancelSubcategoryEdit()">Cancel</button>
+                                                                            </div>
+                                                                        </div>
+                                                                    </form>
+                                                                </span>
+                                                                <span v-else class="category-title">{{ child.title }}</span>
                                                                 <div class="category-actions">
-                                                                    <a href="{{ child.cpEditUrl }}" class="btn small">Edit</a>
+                                                                    <button @click="startSubcategoryEdit({{ child.id }})" class="btn small">Edit</button>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -870,7 +1000,63 @@
             const staffApp = Vue.createApp({
                 data() {
                     return {
-                        activeStaffType: 'supervisors'
+                        activeStaffType: 'supervisors',
+                        editingSupervisorId: null,
+                        editingPorterId: null
+                    }
+                },
+                methods: {
+                    startEditing(id, type) {
+                        if (type === 'supervisor') {
+                            this.editingSupervisorId = id;
+                            this.editingPorterId = null;
+                        } else if (type === 'porter') {
+                            this.editingPorterId = id;
+                            this.editingSupervisorId = null;
+                        }
+                    },
+                    
+                    cancelEdit(type) {
+                        if (type === 'supervisor') {
+                            this.editingSupervisorId = null;
+                        } else if (type === 'porter') {
+                            this.editingPorterId = null;
+                        }
+                    },
+                    
+                    submitStaffEdit(e, id, type) {
+                        // Get form data and submit via AJAX
+                        const formData = new FormData(e.target);
+                        
+                        fetch('', {
+                            method: 'POST',
+                            body: formData,
+                        })
+                        .then(response => response.text())
+                        .then(html => {
+                            // Show success notification
+                            const notification = document.createElement('div');
+                            notification.className = 'notification success';
+                            notification.innerHTML = `${type.charAt(0).toUpperCase() + type.slice(1)} has been updated successfully!`;
+                            
+                            // Insert notification near the form
+                            const formParent = e.target.closest('.staff-card');
+                            formParent.prepend(notification);
+                            
+                            // Remove notification after delay and refresh data
+                            setTimeout(() => {
+                                notification.remove();
+                                this.cancelEdit(type);
+                                
+                                // In a real application, we would fetch updated data here
+                                // For this demo, we'll rely on the page refreshing when needed
+                                window.location.reload();
+                            }, 1500);
+                        })
+                        .catch(error => {
+                            console.error('Error updating staff:', error);
+                            alert(`There was an error updating the ${type}. Please try again.`);
+                        });
                     }
                 }
             });
@@ -881,7 +1067,7 @@
             }
             
             // Location Management App
-            const locationsApp = createHierarchicalApp({
+            const locationsAppBase = createHierarchicalApp({
                 activeItemIdProperty: 'activeBuildingId',
                 childNameProperty: 'departmentName',
                 addSuccessMessage: 'Department has been added successfully!',
@@ -889,13 +1075,195 @@
                 formClasses: '.inline-department-form'
             });
             
+            // Extend the base app with building editing functionality
+            const locationsApp = locationsAppBase.extend({
+                data() {
+                    return {
+                        ...locationsAppBase.data(),
+                        editingBuildingId: null,
+                        editingDepartmentId: null
+                    }
+                },
+                methods: {
+                    ...locationsAppBase.methods,
+                    startBuildingEdit(id) {
+                        this.editingBuildingId = id;
+                    },
+                    cancelBuildingEdit() {
+                        this.editingBuildingId = null;
+                    },
+                    submitBuildingEdit(e, id) {
+                        // Get form data and submit via AJAX
+                        const formData = new FormData(e.target);
+                        
+                        fetch('', {
+                            method: 'POST',
+                            body: formData,
+                        })
+                        .then(response => response.text())
+                        .then(html => {
+                            // Show success notification
+                            const notification = document.createElement('div');
+                            notification.className = 'notification success';
+                            notification.innerHTML = 'Building has been updated successfully!';
+                            
+                            // Insert notification near the form
+                            const header = e.target.closest('.location-header');
+                            header.prepend(notification);
+                            
+                            // Remove notification after delay and refresh data
+                            setTimeout(() => {
+                                notification.remove();
+                                this.cancelBuildingEdit();
+                                window.location.reload();
+                            }, 1500);
+                        })
+                        .catch(error => {
+                            console.error('Error updating building:', error);
+                            alert('There was an error updating the building. Please try again.');
+                        });
+                    },
+                    
+                    startDepartmentEdit(id) {
+                        this.editingDepartmentId = id;
+                    },
+                    
+                    cancelDepartmentEdit() {
+                        this.editingDepartmentId = null;
+                    },
+                    
+                    submitDepartmentEdit(e, id) {
+                        // Get form data and submit via AJAX
+                        const formData = new FormData(e.target);
+                        
+                        fetch('', {
+                            method: 'POST',
+                            body: formData,
+                        })
+                        .then(response => response.text())
+                        .then(html => {
+                            // Show success notification
+                            const notification = document.createElement('div');
+                            notification.className = 'notification success';
+                            notification.innerHTML = 'Department has been updated successfully!';
+                            
+                            // Insert notification near the form
+                            const header = e.target.closest('.location-header');
+                            header.prepend(notification);
+                            
+                            // Remove notification after delay and refresh data
+                            setTimeout(() => {
+                                notification.remove();
+                                this.cancelDepartmentEdit();
+                                window.location.reload();
+                            }, 1500);
+                        })
+                        .catch(error => {
+                            console.error('Error updating department:', error);
+                            alert('There was an error updating the department. Please try again.');
+                        });
+                    }
+                }
+            });
+            
             // Task Categories App
-            const categoriesApp = createHierarchicalApp({
+            const categoriesAppBase = createHierarchicalApp({
                 activeItemIdProperty: 'activeCategoryId',
                 childNameProperty: 'subcategoryName',
                 addSuccessMessage: 'Subcategory has been added successfully!',
                 addButtonLabel: 'Add Subcategory',
                 formClasses: '.inline-subcategory-form'
+            });
+            
+            // Extend the base app with category editing functionality
+            const categoriesApp = categoriesAppBase.extend({
+                data() {
+                    return {
+                        ...categoriesAppBase.data(),
+                        editingCategoryId: null,
+                        editingSubcategoryId: null
+                    }
+                },
+                methods: {
+                    ...categoriesAppBase.methods,
+                    startCategoryEdit(id) {
+                        this.editingCategoryId = id;
+                    },
+                    cancelCategoryEdit() {
+                        this.editingCategoryId = null;
+                    },
+                    submitCategoryEdit(e, id) {
+                        // Get form data and submit via AJAX
+                        const formData = new FormData(e.target);
+                        
+                        fetch('', {
+                            method: 'POST',
+                            body: formData,
+                        })
+                        .then(response => response.text())
+                        .then(html => {
+                            // Show success notification
+                            const notification = document.createElement('div');
+                            notification.className = 'notification success';
+                            notification.innerHTML = 'Category has been updated successfully!';
+                            
+                            // Insert notification near the form
+                            const header = e.target.closest('.category-header');
+                            header.prepend(notification);
+                            
+                            // Remove notification after delay and refresh data
+                            setTimeout(() => {
+                                notification.remove();
+                                this.cancelCategoryEdit();
+                                window.location.reload();
+                            }, 1500);
+                        })
+                        .catch(error => {
+                            console.error('Error updating category:', error);
+                            alert('There was an error updating the category. Please try again.');
+                        });
+                    },
+                    
+                    startSubcategoryEdit(id) {
+                        this.editingSubcategoryId = id;
+                    },
+                    
+                    cancelSubcategoryEdit() {
+                        this.editingSubcategoryId = null;
+                    },
+                    
+                    submitSubcategoryEdit(e, id) {
+                        // Get form data and submit via AJAX
+                        const formData = new FormData(e.target);
+                        
+                        fetch('', {
+                            method: 'POST',
+                            body: formData,
+                        })
+                        .then(response => response.text())
+                        .then(html => {
+                            // Show success notification
+                            const notification = document.createElement('div');
+                            notification.className = 'notification success';
+                            notification.innerHTML = 'Subcategory has been updated successfully!';
+                            
+                            // Insert notification near the form
+                            const header = e.target.closest('.category-header');
+                            header.prepend(notification);
+                            
+                            // Remove notification after delay and refresh data
+                            setTimeout(() => {
+                                notification.remove();
+                                this.cancelSubcategoryEdit();
+                                window.location.reload();
+                            }, 1500);
+                        })
+                        .catch(error => {
+                            console.error('Error updating subcategory:', error);
+                            alert('There was an error updating the subcategory. Please try again.');
+                        });
+                    }
+                }
             });
             
             // Mount apps if containers exist
