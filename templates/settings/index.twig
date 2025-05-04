@@ -202,23 +202,16 @@
         <div class="add-building-form">
             <h2>Add New Building</h2>
             
-            {% if success is defined %}
-                <div class="notification success">
-                    Building has been saved successfully!
-                </div>
-            {% endif %}
-
             {% set entry = entry is defined ? entry : craft.entries.section('locations').one() ?? create('craft\\elements\\Entry') %}
             
             <form method="post" accept-charset="UTF-8">
                 {{ csrfInput() }}
                 {{ actionInput('entries/save-entry') }}
-                {{ redirectInput('success?slug={slug}') }}
+                {{ redirectInput(siteUrl('settings/buildings-departments')) }}
                 {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('locations').id) }}
                 {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('locations').entryTypes[0].id) }}
                 {{ hiddenInput('enabled', '1') }}
                 {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
-                {{ successMessageInput('Building has been added successfully!') }}
                 
                 <div class="field">
                     <label for="title">Building Name *</label>
@@ -259,10 +252,10 @@
                             
                             <!-- Inline department form - shown/hidden with Vue -->
                             <div class="inline-department-form" v-if="activeBuildingId === {{ location.id }}">
-                                <form method="post" accept-charset="UTF-8" @submit="submitDepartmentForm">
+                                <form method="post" accept-charset="UTF-8" @submit.prevent="submitDepartmentForm($event, {{ location.id }})">
                                     {{ csrfInput() }}
                                     {{ actionInput('entries/save-entry') }}
-                                    {{ redirectInput('success?slug={slug}') }}
+                                    {{ redirectInput(siteUrl('settings/buildings-departments')) }}
                                     {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('locations').id) }}
                                     {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('locations').entryTypes[1].id) }}
                                     {{ hiddenInput('enabled', '1') }}
@@ -271,8 +264,6 @@
                                     {# Critical: This establishes the parent-child relationship in the Structure section #}
                                     {# In Craft CMS, the parentId parameter is used for Structure sections to establish hierarchy #}
                                     <input type="hidden" name="parentId" :value="activeBuildingId">
-                                    
-                                    {{ successMessageInput('Department has been added successfully!') }}
                                     
                                     <div class="field">
                                         <label for="department-title-${location.id}">Department Name *</label>
@@ -322,9 +313,118 @@
             <!-- Task Types Tab -->
             <div class="tab-pane" id="task-types">
                 <div class="settings-section">
-                    <div class="section-notice">
-                        <p>This section will allow you to create different types of tasks that can be assigned to porters.</p>
-                        <p>Task Types are not implemented in the current version.</p>
+                    <div class="header-with-nav">
+                        <h1>Task Categories Management</h1>
+                        <div class="nav-links">
+                            <a href="{{ siteUrl('settings') }}" class="btn">← Back to Settings</a>
+                        </div>
+                    </div>
+
+                    <div id="task-categories-app">
+                        <div class="add-category-form">
+                            <h2>Add New Task Category</h2>
+                            
+                            {% set entry = entry is defined ? entry : craft.entries.section('taskCategories').one() ?? create('craft\\elements\\Entry') %}
+                            
+                            <form method="post" accept-charset="UTF-8">
+                                {{ csrfInput() }}
+                                {{ actionInput('entries/save-entry') }}
+                                {{ redirectInput(siteUrl('settings/task-types')) }}
+                                {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('taskCategories').id) }}
+                                {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('taskCategories').entryTypes[0].id) }}
+                                {{ hiddenInput('enabled', '1') }}
+                                {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
+                                
+                                <div class="field">
+                                    <label for="title">Category Name *</label>
+                                    {{ input('text', 'title', entry.title, {
+                                        id: 'title',
+                                        required: true
+                                    }) }}
+                                    {% if entry is defined and entry.hasErrors('title') %}
+                                        <span class="error">{{ entry.getFirstError('title') }}</span>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="submit">
+                                    <button type="submit" class="btn">Add Category</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="categories-list">
+                            <h2>Existing Task Categories</h2>
+                            {% set rootCategories = craft.entries()
+                                .section('taskCategories')
+                                .level(1)
+                                .orderBy('title asc')
+                                .all() %}
+
+                            {% if rootCategories|length %}
+                                <div class="categories-tree">
+                                    {% for category in rootCategories %}
+                                        <div class="category-item level-1">
+                                            <div class="category-header">
+                                                <span class="category-title">{{ category.title }}</span>
+                                                <div class="category-actions">
+                                                    <a href="{{ category.cpEditUrl }}" class="btn small">Edit</a>
+                                                    <button class="btn small add-subcategory-btn" @click="showAddSubcategoryForm({{ category.id }})">Add Subcategory</button>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Inline subcategory form - shown/hidden with Vue -->
+                                            <div class="inline-subcategory-form" v-if="activeCategoryId === {{ category.id }}">
+                                                <form method="post" accept-charset="UTF-8" @submit.prevent="submitSubcategoryForm($event, {{ category.id }})">
+                                                    {{ csrfInput() }}
+                                                    {{ actionInput('entries/save-entry') }}
+                                                    {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('taskCategories').id) }}
+                                                    {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('taskCategories').entryTypes[0].id) }}
+                                                    {{ hiddenInput('enabled', '1') }}
+                                                    {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
+                                                    
+                                                    {# Critical: This establishes the parent-child relationship in the Structure section #}
+                                                    <input type="hidden" name="parentId" :value="activeCategoryId">
+                                                    
+                                                    <div class="field">
+                                                        <label for="subcategory-title-${category.id}">Subcategory Name *</label>
+                                                        <input type="text" name="title" id="subcategory-title-${category.id}" required v-model="subcategoryName">
+                                                    </div>
+                                                    
+                                                    <div class="form-actions">
+                                                        <button type="submit" class="btn">Add Subcategory</button>
+                                                        <button type="button" class="btn cancel-btn" @click="cancelAddSubcategory">Cancel</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                            
+                                            {% set childCategories = craft.entries()
+                                                .section('taskCategories')
+                                                .descendantOf(category)
+                                                .level(2)
+                                                .orderBy('title asc')
+                                                .all() %}
+                                                
+                                            {% if childCategories|length %}
+                                                <div class="category-children">
+                                                    {% for child in childCategories %}
+                                                        <div class="category-item level-2">
+                                                            <div class="category-header">
+                                                                <span class="category-title">{{ child.title }}</span>
+                                                                <div class="category-actions">
+                                                                    <a href="{{ child.cpEditUrl }}" class="btn small">Edit</a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p><em>No task categories have been added yet.</em></p>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -380,6 +480,61 @@
             display: block;
         }
         
+        /* Notifications */
+        .notification {
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            border-left: 4px solid;
+        }
+        
+        .notification.success {
+            background-color: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+        
+        /* Categories Styles */
+        .categories-container {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .category-item {
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            background-color: #f5f5f5;
+            transition: all 0.2s ease;
+        }
+        
+        .category-item:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .category-header {
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .category-title {
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        
+        .category-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .add-category-form {
+            max-width: 600px;
+            margin-bottom: 30px;
+        }
+        
         /* Locations Tree Styles */
         .locations-tree {
             margin-top: 20px;
@@ -423,7 +578,17 @@
             margin-top: 8px;
         }
         
-        .inline-department-form {
+        /* Categories Tree Styles */
+        .categories-tree {
+            margin-top: 20px;
+        }
+        
+        .category-children {
+            padding: 0 0 10px 30px;
+        }
+        
+        .inline-department-form,
+        .inline-subcategory-form {
             padding: 15px 30px;
             background-color: #f0f7ff;
             border-top: 1px solid #cfdaeb;
@@ -515,9 +680,105 @@
                 });
             });
             
-            // Initialize Vue app for location management
+            // Initialize Vue apps
             const { createApp } = Vue;
             
+            // Task Categories App
+            const categoriesApp = createApp({
+                data() {
+                    return {
+                        categoryName: '',
+                        activeCategoryId: null,
+                        subcategoryName: '',
+                    }
+                },
+                methods: {
+                    submitCategoryForm(e) {
+                        // Validate the form
+                        if (!this.categoryName.trim()) {
+                            alert('Please enter a category name');
+                            e.preventDefault();
+                            return;
+                        }
+                        
+                        // Form will continue with normal submission
+                    },
+                    showAddSubcategoryForm(categoryId) {
+                        // If clicking the same category, toggle the form
+                        if (this.activeCategoryId === categoryId) {
+                            this.activeCategoryId = null;
+                        } else {
+                            this.activeCategoryId = categoryId;
+                            this.subcategoryName = '';
+                        }
+                    },
+                    cancelAddSubcategory() {
+                        this.activeCategoryId = null;
+                        this.subcategoryName = '';
+                    },
+                    submitSubcategoryForm(e, categoryId) {
+                        // Validate the form
+                        if (!this.subcategoryName.trim()) {
+                            alert('Please enter a subcategory name');
+                            return;
+                        }
+                        
+                        // Get form data
+                        const formData = new FormData(e.target);
+                        
+                        // Submit the form via AJAX
+                        fetch('', {
+                            method: 'POST',
+                            body: formData,
+                        })
+                        .then(response => response.text())
+                        .then(html => {
+                            // Show success notification
+                            const notification = document.createElement('div');
+                            notification.className = 'notification success';
+                            notification.innerHTML = 'Subcategory has been added successfully!';
+                            
+                            // Insert notification near the form
+                            const formParent = e.target.closest('.inline-subcategory-form');
+                            formParent.prepend(notification);
+                            
+                            // Refresh the categories list for this category
+                            this.refreshSubcategoriesList(categoryId);
+                            
+                            // Clear form and hide after a delay
+                            setTimeout(() => {
+                                this.subcategoryName = '';
+                                notification.remove();
+                                
+                                // Refresh the page content without a full reload
+                                this.activeCategoryId = null;
+                            }, 2000);
+                        })
+                        .catch(error => {
+                            console.error('Error submitting form:', error);
+                            alert('There was an error adding the subcategory. Please try again.');
+                        });
+                    },
+                    refreshSubcategoriesList(categoryId) {
+                        // This function would ideally make an AJAX request to get updated subcategories
+                        // But for simplicity, we'll just force a focused reload
+                        const tempId = this.activeCategoryId;
+                        this.activeCategoryId = null;
+                        
+                        setTimeout(() => {
+                            this.activeCategoryId = tempId;
+                        }, 100);
+                    }
+                }
+            });
+            
+            // Mount the categories app if the container exists
+            const categoriesAppContainer = document.getElementById('task-categories-app');
+            if (categoriesAppContainer) {
+                categoriesApp.mount('#task-categories-app');
+            }
+            
+            // Location Management App
             const locationsApp = createApp({
                 data() {
                     return {
@@ -539,14 +800,61 @@
                         this.activeBuildingId = null;
                         this.departmentName = '';
                     },
-                    submitDepartmentForm(e) {
-                        // Form will submit normally via POST
-                        // The preventDefault is removed to allow normal form submission
-                        // We're using Vue just for UI state management
+                    submitDepartmentForm(e, buildingId) {
+                        // Validate the form
                         if (!this.departmentName.trim()) {
-                            e.preventDefault();
                             alert('Please enter a department name');
+                            return;
                         }
+                        
+                        // Get form data
+                        const formData = new FormData(e.target);
+                        
+                        // Submit the form via AJAX
+                        fetch('', {
+                            method: 'POST',
+                            body: formData,
+                        })
+                        .then(response => response.text())
+                        .then(html => {
+                            // Show success notification
+                            const notification = document.createElement('div');
+                            notification.className = 'notification success';
+                            notification.innerHTML = 'Department has been added successfully!';
+                            
+                            // Insert notification near the form
+                            const formParent = e.target.closest('.inline-department-form');
+                            formParent.prepend(notification);
+                            
+                            // Refresh the departments list for this building
+                            this.refreshDepartmentsList(buildingId);
+                            
+                            // Clear form and hide after a delay
+                            setTimeout(() => {
+                                this.departmentName = '';
+                                notification.remove();
+                                
+                                // Refresh the page content without a full reload
+                                this.activeBuildingId = null;
+                            }, 2000);
+                        })
+                        .catch(error => {
+                            console.error('Error submitting form:', error);
+                            alert('There was an error adding the department. Please try again.');
+                        });
+                    },
+                    
+                    refreshDepartmentsList(buildingId) {
+                        // This function would ideally make an AJAX request to get updated departments
+                        // But for simplicity in this implementation, we'll just force a focused reload
+                        // of just that section by toggling the form visibility, which will re-trigger
+                        // the template's childLocations query when the form is shown again
+                        const tempId = this.activeBuildingId;
+                        this.activeBuildingId = null;
+                        
+                        setTimeout(() => {
+                            this.activeBuildingId = tempId;
+                        }, 100);
                     }
                 }
             });

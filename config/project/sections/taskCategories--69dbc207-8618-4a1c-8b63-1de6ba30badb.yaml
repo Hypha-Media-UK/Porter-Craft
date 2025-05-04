@@ -2,6 +2,8 @@ defaultPlacement: end
 enableVersioning: true
 entryTypes:
   -
+    uid: 1fefe862-852d-49ba-83cb-906b289365ac # ENT Tasks
+  -
     uid: a029653d-b401-4157-b33a-c398463b10b2 # Task Categories
 handle: taskCategories
 maxAuthors: 1
