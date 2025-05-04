@@ -198,121 +198,122 @@
     </div>
 
 
-    <div class="add-building-form">
-        <h2>Add New Building</h2>
-        
-        {% if success is defined %}
-            <div class="notification success">
-                Building has been saved successfully!
-            </div>
-        {% endif %}
+    <div id="locations-app">
+        <div class="add-building-form">
+            <h2>Add New Building</h2>
+            
+            {% if success is defined %}
+                <div class="notification success">
+                    Building has been saved successfully!
+                </div>
+            {% endif %}
 
-        {% set entry = entry is defined ? entry : craft.entries.section('locations').one() ?? create('craft\\elements\\Entry') %}
-        
-        <form method="post" accept-charset="UTF-8">
-            {{ csrfInput() }}
-            {{ actionInput('entries/save-entry') }}
-            {{ redirectInput('success?slug={slug}') }}
-            {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('locations').id) }}
-            {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('locations').entryTypes[0].id) }}
-            {{ hiddenInput('enabled', '1') }}
-            {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
-            {{ successMessageInput('Building has been added successfully!') }}
+            {% set entry = entry is defined ? entry : craft.entries.section('locations').one() ?? create('craft\\elements\\Entry') %}
             
-            <div class="field">
-                <label for="title">Building Name *</label>
-                {{ input('text', 'title', entry.title, {
-                    id: 'title',
-                    required: true
-                }) }}
-                {% if entry is defined and entry.hasErrors('title') %}
-                    <span class="error">{{ entry.getFirstError('title') }}</span>
-                {% endif %}
-            </div>
-            
-            <div class="submit">
-                <button type="submit" class="btn">Add Building</button>
-            </div>
-        </form>
-    </div>
-    
-    {# Department form - initially hidden, shown via JavaScript #}
-    <div id="add-department-form" class="add-department-form" style="display: none;">
-        <h2>Add New Department</h2>
-        
-        <form method="post" accept-charset="UTF-8">
-            {{ csrfInput() }}
-            {{ actionInput('entries/save-entry') }}
-            {{ redirectInput('success?slug={slug}') }}
-            {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('locations').id) }}
-            {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('locations').entryTypes[1].id) }}
-            {{ hiddenInput('enabled', '1') }}
-            {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
-            {{ hiddenInput('fields[parentId]', '', {id: 'parent-id-field'}) }}
-            {{ successMessageInput('Department has been added successfully!') }}
-            
-            <div class="field">
-                <label for="department-title">Department Name *</label>
-                {{ input('text', 'title', '', {
-                    id: 'department-title',
-                    required: true
-                }) }}
-            </div>
-            
-            <div class="submit">
-                <button type="submit" class="btn">Add Department</button>
-                <button type="button" class="btn cancel-btn" id="cancel-department">Cancel</button>
-            </div>
-        </form>
-    </div>
+            <form method="post" accept-charset="UTF-8">
+                {{ csrfInput() }}
+                {{ actionInput('entries/save-entry') }}
+                {{ redirectInput('success?slug={slug}') }}
+                {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('locations').id) }}
+                {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('locations').entryTypes[0].id) }}
+                {{ hiddenInput('enabled', '1') }}
+                {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
+                {{ successMessageInput('Building has been added successfully!') }}
+                
+                <div class="field">
+                    <label for="title">Building Name *</label>
+                    {{ input('text', 'title', entry.title, {
+                        id: 'title',
+                        required: true
+                    }) }}
+                    {% if entry is defined and entry.hasErrors('title') %}
+                        <span class="error">{{ entry.getFirstError('title') }}</span>
+                    {% endif %}
+                </div>
+                
+                <div class="submit">
+                    <button type="submit" class="btn">Add Building</button>
+                </div>
+            </form>
+        </div>
 
         <div class="buildings-list">
-        <h2>Existing Locations</h2>
-        {% set rootLocations = craft.entries()
-            .section('locations')
-            .level(1)
-            .orderBy('title asc')
-            .all() %}
+            <h2>Existing Locations</h2>
+            {% set rootLocations = craft.entries()
+                .section('locations')
+                .level(1)
+                .orderBy('title asc')
+                .all() %}
 
-        {% if rootLocations|length %}
-            <div class="locations-tree">
-                {% for location in rootLocations %}
-                    <div class="location-item level-1">
-                        <div class="location-header">
-                            <span class="location-title">{{ location.title }}</span>
-                            <div class="location-actions">
-                                <a href="{{ location.cpEditUrl }}" class="btn small">Edit</a>
-                                <a href="#" class="btn small add-department" data-parent-id="{{ location.id }}">Add Department</a>
+            {% if rootLocations|length %}
+                <div class="locations-tree">
+                    {% for location in rootLocations %}
+                        <div class="location-item level-1">
+                            <div class="location-header">
+                                <span class="location-title">{{ location.title }}</span>
+                                <div class="location-actions">
+                                    <a href="{{ location.cpEditUrl }}" class="btn small">Edit</a>
+                                    <button class="btn small add-department-btn" @click="showAddDepartmentForm({{ location.id }})">Add Department</button>
+                                </div>
                             </div>
-                        </div>
-                        
-                        {% set childLocations = craft.entries()
-                            .section('locations')
-                            .descendantOf(location)
-                            .level(2)
-                            .orderBy('title asc')
-                            .all() %}
                             
-                        {% if childLocations|length %}
-                            <div class="location-children">
-                                {% for child in childLocations %}
-                                    <div class="location-item level-2">
-                                        <div class="location-header">
-                                            <span class="location-title">{{ child.title }}</span>
-                                            <div class="location-actions">
-                                                <a href="{{ child.cpEditUrl }}" class="btn small">Edit</a>
+                            <!-- Inline department form - shown/hidden with Vue -->
+                            <div class="inline-department-form" v-if="activeBuildingId === {{ location.id }}">
+                                <form method="post" accept-charset="UTF-8" @submit="submitDepartmentForm">
+                                    {{ csrfInput() }}
+                                    {{ actionInput('entries/save-entry') }}
+                                    {{ redirectInput('success?slug={slug}') }}
+                                    {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('locations').id) }}
+                                    {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('locations').entryTypes[1].id) }}
+                                    {{ hiddenInput('enabled', '1') }}
+                                    {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
+                                    
+                                    {# Critical: This establishes the parent-child relationship in the Structure section #}
+                                    {# In Craft CMS, the parentId parameter is used for Structure sections to establish hierarchy #}
+                                    <input type="hidden" name="parentId" :value="activeBuildingId">
+                                    
+                                    {{ successMessageInput('Department has been added successfully!') }}
+                                    
+                                    <div class="field">
+                                        <label for="department-title-${location.id}">Department Name *</label>
+                                        <input type="text" name="title" id="department-title-${location.id}" required v-model="departmentName">
+                                    </div>
+                                    
+                                    <div class="form-actions">
+                                        <button type="submit" class="btn">Add Department</button>
+                                        <button type="button" class="btn cancel-btn" @click="cancelAddDepartment">Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
+                            
+                            {% set childLocations = craft.entries()
+                                .section('locations')
+                                .descendantOf(location)
+                                .level(2)
+                                .orderBy('title asc')
+                                .all() %}
+                                
+                            {% if childLocations|length %}
+                                <div class="location-children">
+                                    {% for child in childLocations %}
+                                        <div class="location-item level-2">
+                                            <div class="location-header">
+                                                <span class="location-title">{{ child.title }}</span>
+                                                <div class="location-actions">
+                                                    <a href="{{ child.cpEditUrl }}" class="btn small">Edit</a>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <p><em>No locations have been added yet.</em></p>
-        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p><em>No locations have been added yet.</em></p>
+            {% endif %}
+        </div>
     </div>
 
                 </div>
@@ -422,12 +423,22 @@
             margin-top: 8px;
         }
         
-        .add-department-form {
-            background-color: #f8f9fa;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 20px;
-            margin: 20px 0;
+        .inline-department-form {
+            padding: 15px 30px;
+            background-color: #f0f7ff;
+            border-top: 1px solid #cfdaeb;
+            margin-top: 5px;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .form-actions {
+            display: flex;
+            margin-top: 15px;
         }
         
         .cancel-btn {
@@ -473,6 +484,9 @@
         }
     </style>
     
+    {# Load Vue.js CDN #}
+    <script src="https://unpkg.com/vue@3.2.31/dist/vue.global.js"></script>
+    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Simple tab navigation
@@ -501,40 +515,46 @@
                 });
             });
             
-            // Department form handling
-            const addDepartmentButtons = document.querySelectorAll('.add-department');
-            const departmentForm = document.getElementById('add-department-form');
-            const parentIdField = document.getElementById('parent-id-field');
-            const cancelButton = document.getElementById('cancel-department');
+            // Initialize Vue app for location management
+            const { createApp } = Vue;
             
-            addDepartmentButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    
-                    // Get the parent ID from the button's data attribute
-                    const parentId = this.getAttribute('data-parent-id');
-                    
-                    // Set the parentId field value
-                    parentIdField.value = parentId;
-                    
-                    // Show the department form
-                    departmentForm.style.display = 'block';
-                    
-                    // Scroll to the form
-                    departmentForm.scrollIntoView({ behavior: 'smooth' });
-                });
+            const locationsApp = createApp({
+                data() {
+                    return {
+                        activeBuildingId: null,
+                        departmentName: '',
+                    }
+                },
+                methods: {
+                    showAddDepartmentForm(buildingId) {
+                        // If clicking the same building, toggle the form
+                        if (this.activeBuildingId === buildingId) {
+                            this.activeBuildingId = null;
+                        } else {
+                            this.activeBuildingId = buildingId;
+                            this.departmentName = '';
+                        }
+                    },
+                    cancelAddDepartment() {
+                        this.activeBuildingId = null;
+                        this.departmentName = '';
+                    },
+                    submitDepartmentForm(e) {
+                        // Form will submit normally via POST
+                        // The preventDefault is removed to allow normal form submission
+                        // We're using Vue just for UI state management
+                        if (!this.departmentName.trim()) {
+                            e.preventDefault();
+                            alert('Please enter a department name');
+                        }
+                    }
+                }
             });
             
-            // Cancel button click handler
-            if (cancelButton) {
-                cancelButton.addEventListener('click', function() {
-                    // Hide the form
-                    departmentForm.style.display = 'none';
-                    
-                    // Clear the form fields
-                    document.getElementById('department-title').value = '';
-                    parentIdField.value = '';
-                });
+            // Mount the Vue app if the container exists
+            const locationsAppContainer = document.getElementById('locations-app');
+            if (locationsAppContainer) {
+                locationsApp.mount('#locations-app');
             }
         });
     </script>
