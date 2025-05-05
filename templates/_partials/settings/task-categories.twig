@@ -1,0 +1,148 @@
+<!-- Task Categories Management App -->
+<div class="header-with-nav">
+    <h1>Task Categories Management</h1>
+    <div class="nav-links">
+        <a href="{{ siteUrl('settings') }}" class="btn">← Back to Settings</a>
+    </div>
+</div>
+
+<div class="add-category-form">
+    <h2>Add New Task Category</h2>
+    
+    {% set entry = entry is defined ? entry : craft.entries.section('taskCategories').one() ?? create('craft\\elements\\Entry') %}
+    
+    <form method="post" accept-charset="UTF-8">
+        {{ csrfInput() }}
+        {{ actionInput('entries/save-entry') }}
+        {{ redirectInput(siteUrl('settings/task-types')) }}
+        {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('taskCategories').id) }}
+        {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('taskCategories').entryTypes[0].id) }}
+        {{ hiddenInput('enabled', '1') }}
+        {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
+        
+        <div class="field">
+            <label for="title">Category Name *</label>
+            {{ input('text', 'title', entry.title, {
+                id: 'title',
+                required: true,
+                class: 'form-control'
+            }) }}
+            {% if entry is defined and entry.hasErrors('title') %}
+                <span class="error">{{ entry.getFirstError('title') }}</span>
+            {% endif %}
+        </div>
+        
+        <div class="submit">
+            <button type="submit" class="btn primary-btn">Add Category</button>
+        </div>
+    </form>
+</div>
+
+<div class="categories-list">
+    <h2>Existing Task Categories</h2>
+    {% set rootCategories = craft.entries()
+        .section('taskCategories')
+        .level(1)
+        .orderBy('title asc')
+        .all() %}
+
+    {% if rootCategories|length %}
+        <div class="categories-tree">
+            {% for category in rootCategories %}
+                <div class="category-item level-1">
+                    <div class="category-header">
+                        <span v-if="editingCategoryId === {{ category.id }}" class="category-title-edit">
+                            <form @submit.prevent="submitCategoryEdit($event, {{ category.id }})">
+                                {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('taskCategories').id) }}
+                                {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('taskCategories').entryTypes[0].id) }}
+                                {{ actionInput('entries/save-entry') }}
+                                {{ hiddenInput('enabled', '1') }}
+                                {{ hiddenInput('id', category.id) }}
+                                
+                                <div class="inline-edit-field">
+                                    <input type="text" name="title" required value="{{ category.title }}" class="form-control">
+                                    <div class="inline-edit-actions">
+                                        <button type="submit" class="btn small">Save</button>
+                                        <button type="button" class="btn small cancel-btn" @click="cancelCategoryEdit()">Cancel</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </span>
+                        <span v-else class="category-title">{{ category.title }}</span>
+                        <div class="category-actions">
+                            <button @click="startCategoryEdit({{ category.id }})" class="btn small">Edit</button>
+                            <button class="btn small add-subcategory-btn" @click="showAddForm({{ category.id }})">Add Subcategory</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Inline subcategory form - shown/hidden with Vue -->
+                    <div class="inline-subcategory-form" v-if="activeCategoryId === {{ category.id }}">
+                        <form method="post" accept-charset="UTF-8" @submit.prevent="submitChildForm($event, {{ category.id }})">
+                            {{ csrfInput() }}
+                            {{ actionInput('entries/save-entry') }}
+                            {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('taskCategories').id) }}
+                            {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('taskCategories').entryTypes[0].id) }}
+                            {{ hiddenInput('enabled', '1') }}
+                            {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
+                            
+                            {# Critical: This establishes the parent-child relationship in the Structure section #}
+                            <input type="hidden" name="parentId" :value="activeCategoryId">
+                            
+                            <div class="field">
+                                <label for="subcategory-title-${category.id}">Subcategory Name *</label>
+                                <input type="text" name="title" id="subcategory-title-${category.id}" required v-model="subcategoryName" class="form-control">
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="submit" class="btn primary-btn">Add Subcategory</button>
+                                <button type="button" class="btn cancel-btn" @click="cancelAdd">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    {% set childCategories = craft.entries()
+                        .section('taskCategories')
+                        .descendantOf(category)
+                        .level(2)
+                        .orderBy('title asc')
+                        .all() %}
+                        
+                    {% if childCategories|length %}
+                        <div class="category-children">
+                            {% for child in childCategories %}
+                                <div class="category-item level-2">
+                                    <div class="category-header">
+                                        <span v-if="editingSubcategoryId === {{ child.id }}" class="category-title-edit">
+                                            <form @submit.prevent="submitSubcategoryEdit($event, {{ child.id }})">
+                                                {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('taskCategories').id) }}
+                                                {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('taskCategories').entryTypes[0].id) }}
+                                                {{ actionInput('entries/save-entry') }}
+                                                {{ hiddenInput('enabled', '1') }}
+                                                {{ hiddenInput('id', child.id) }}
+                                                {{ hiddenInput('parentId', category.id) }}
+                                                
+                                                <div class="inline-edit-field">
+                                                    <input type="text" name="title" required value="{{ child.title }}" class="form-control">
+                                                    <div class="inline-edit-actions">
+                                                        <button type="submit" class="btn small">Save</button>
+                                                        <button type="button" class="btn small cancel-btn" @click="cancelSubcategoryEdit()">Cancel</button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </span>
+                                        <span v-else class="category-title">{{ child.title }}</span>
+                                        <div class="category-actions">
+                                            <button @click="startSubcategoryEdit({{ child.id }})" class="btn small">Edit</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="empty-state"><em>No task categories have been added yet.</em></p>
+    {% endif %}
+</div>

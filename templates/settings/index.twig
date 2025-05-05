@@ -2,417 +2,330 @@
 
 {% block content %}
     <div class="settings-page">
-        <h1>Settings</h1>
+        <div class="settings-header">
+            <h1>Settings</h1>
+            <p class="settings-description">Configure Porter Craft system settings including staff, buildings, departments, and task types.</p>
+        </div>
         
         <div class="settings-navigation">
             <ul class="nav-tabs">
-                <li class="nav-item"><a href="#staff-management" class="nav-link active" data-bs-toggle="tab">Staff Management</a></li>
-                <li class="nav-item"><a href="#buildings-departments" class="nav-link" data-bs-toggle="tab">Buildings & Departments</a></li>
-                <li class="nav-item"><a href="#task-types" class="nav-link" data-bs-toggle="tab">Task Types</a></li>
+                <li class="nav-item">
+                    <a href="#staff-management" class="nav-link active">
+                        <i class="fas fa-users"></i>
+                        <span>Staff Management</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#buildings-departments" class="nav-link">
+                        <i class="fas fa-building"></i>
+                        <span>Buildings & Departments</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#task-types" class="nav-link">
+                        <i class="fas fa-tasks"></i>
+                        <span>Task Types</span>
+                    </a>
+                </li>
             </ul>
         </div>
         <div class="tab-content">
             <!-- Staff Management Tab -->
             <div class="tab-pane active" id="staff-management">
                 <div class="settings-section">
-
-
-    <div id="staff-management-app">
-        <div class="header-with-nav">
-            <h1>Staff Management</h1>
-            <div class="nav-links">
-                <a href="{{ siteUrl('staff') }}" class="btn">← Back to Staff Management</a>
-            </div>
-        </div>
-
-        <!-- Sub-navigation tabs for different staff types -->
-        <div class="staff-type-tabs">
-            <button class="staff-tab-btn" :class="{ active: activeStaffType === 'supervisors' }" @click="activeStaffType = 'supervisors'">Supervisors</button>
-            <button class="staff-tab-btn" :class="{ active: activeStaffType === 'porters' }" @click="activeStaffType = 'porters'">Porters</button>
-        </div>
-
-        <!-- Staff management container -->
-        <div class="staff-management-container">
-            <!-- Supervisors Section -->
-            <div v-show="activeStaffType === 'supervisors'" class="staff-section supervisors-section">
-                <div class="add-staff-form">
-                    <h2>Add New Supervisor</h2>
-                    
-                    {% if success is defined and staffType == 'supervisor' %}
-                        <div class="notification success">
-                            Supervisor has been saved successfully!
+                    <div class="header-with-nav">
+                        <h1>Staff Management</h1>
+                        <div class="nav-links">
+                            <a href="{{ url('') }}" class="btn">← Back to Dashboard</a>
                         </div>
-                    {% endif %}
+                    </div>
 
-                    {% set supervisorEntry = entry is defined and staffType == 'supervisor' ? entry : craft.entries.section('supervisors').one() ?? create('craft\\elements\\Entry') %}
-                    
-                    <form method="post" accept-charset="UTF-8">
-                        {{ csrfInput() }}
-                        {{ actionInput('entries/save-entry') }}
-                        {{ redirectInput(siteUrl('settings?staffType=supervisor')) }}
-                        {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('supervisors').id) }}
-                        {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('supervisors').entryTypes[0].id) }}
-                        {{ hiddenInput('enabled', '1') }}
-                        {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
-                        
-                        <div class="field-group">
-                            <div class="field">
-                                <label for="supervisor-title">First Name *</label>
-                                {{ input('text', 'title', supervisorEntry.title, {
-                                    id: 'supervisor-title',
-                                    required: true,
-                                    class: 'form-control'
-                                }) }}
-                                {% if supervisorEntry is defined and supervisorEntry.hasErrors('title') %}
-                                    <span class="error">{{ supervisorEntry.getFirstError('title') }}</span>
-                                {% endif %}
-                            </div>
+                    <!-- Staff Type Tabs -->
+                    <div class="staff-type-tabs">
+                        <button class="staff-tab-btn active" id="supervisors-tab">Supervisors</button>
+                        <button class="staff-tab-btn" id="porters-tab">Porters</button>
+                    </div>
+
+                    <!-- Supervisors Section -->
+                    <div class="staff-section supervisors-section active">
+                        <div class="add-staff-form">
+                            <h2>Add New Supervisor</h2>
                             
-                            <div class="field">
-                                <label for="supervisor-surname">Surname *</label>
-                                {{ input('text', 'fields[fd_surname]', supervisorEntry.fd_surname, {
-                                    id: 'supervisor-surname',
-                                    required: true,
-                                    class: 'form-control'
-                                }) }}
-                                {% if supervisorEntry is defined and supervisorEntry.hasErrors('fd_surname') %}
-                                    <span class="error">{{ supervisorEntry.getFirstError('fd_surname') }}</span>
-                                {% endif %}
-                            </div>
-                        </div>
-                        
-                        <div class="submit">
-                            <button type="submit" class="btn primary-btn">Add Supervisor</button>
-                        </div>
-                    </form>
-                </div>
+                            {% if success is defined and staffType == 'supervisor' %}
+                                <div class="notification success">
+                                    Supervisor has been saved successfully!
+                                </div>
+                            {% endif %}
 
-                <div class="staff-list">
-                    <h2>Existing Supervisors</h2>
-                    {% set supervisors = craft.entries()
-                        .section('supervisors')
-                        .orderBy('title asc')
-                        .all() %}
-
-                    {% if supervisors|length %}
-                        <div class="staff-cards">
-                            {% for supervisor in supervisors %}
-                                <div class="staff-card">
-                                    <div v-if="editingSupervisorId === {{ supervisor.id }}" class="staff-card-edit-form">
-                                        <form @submit.prevent="submitStaffEdit($event, {{ supervisor.id }}, 'supervisor')">
-                                            {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('supervisors').id) }}
-                                            {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('supervisors').entryTypes[0].id) }}
-                                            {{ actionInput('entries/save-entry') }}
-                                            {{ hiddenInput('enabled', '1') }}
-                                            {{ hiddenInput('id', supervisor.id) }}
-                                            
-                                            <div class="inline-field-group">
-                                                <div class="field">
-                                                    <label for="edit-supervisor-title-{{ supervisor.id }}">First Name</label>
-                                                    <input type="text" name="title" id="edit-supervisor-title-{{ supervisor.id }}" 
-                                                           required value="{{ supervisor.title }}" class="form-control">
-                                                </div>
-                                                <div class="field">
-                                                    <label for="edit-supervisor-surname-{{ supervisor.id }}">Surname</label>
-                                                    <input type="text" name="fields[fd_surname]" id="edit-supervisor-surname-{{ supervisor.id }}"
-                                                           required value="{{ supervisor.fd_surname }}" class="form-control">
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="inline-edit-actions">
-                                                <button type="submit" class="btn small">Save</button>
-                                                <button type="button" class="btn small cancel-btn" @click="cancelEdit('supervisor')">Cancel</button>
-                                            </div>
-                                        </form>
+                            {% set supervisorEntry = entry is defined and staffType == 'supervisor' ? entry : craft.entries.section('supervisors').one() ?? create('craft\\elements\\Entry') %}
+                            
+                            <form method="post" accept-charset="UTF-8">
+                                {{ csrfInput() }}
+                                {{ actionInput('entries/save-entry') }}
+                                {{ redirectInput(url('settings?staffType=supervisor')) }}
+                                {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('supervisors').id) }}
+                                {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('supervisors').entryTypes[0].id) }}
+                                {{ hiddenInput('enabled', '1') }}
+                                {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
+                                
+                                <div class="field-group">
+                                    <div class="field">
+                                        <label for="supervisor-title">First Name *</label>
+                                        {{ input('text', 'title', supervisorEntry.title, {
+                                            id: 'supervisor-title',
+                                            required: true,
+                                            class: 'form-control'
+                                        }) }}
+                                        {% if supervisorEntry is defined and supervisorEntry.hasErrors('title') %}
+                                            <span class="error">{{ supervisorEntry.getFirstError('title') }}</span>
+                                        {% endif %}
                                     </div>
                                     
-                                    <div v-else class="staff-card-content">
-                                        <div class="staff-card-header">
-                                            <h3 class="staff-name">{{ supervisor.title }} {{ supervisor.fd_surname }}</h3>
-                                        </div>
-                                        <div class="staff-card-actions">
-                                            <button @click="startEditing({{ supervisor.id }}, 'supervisor')" class="btn small">Edit</button>
-                                        </div>
+                                    <div class="field">
+                                        <label for="supervisor-surname">Surname *</label>
+                                        {{ input('text', 'fields[fd_surname]', supervisorEntry.fd_surname, {
+                                            id: 'supervisor-surname',
+                                            required: true,
+                                            class: 'form-control'
+                                        }) }}
+                                        {% if supervisorEntry is defined and supervisorEntry.hasErrors('fd_surname') %}
+                                            <span class="error">{{ supervisorEntry.getFirstError('fd_surname') }}</span>
+                                        {% endif %}
                                     </div>
                                 </div>
-                            {% endfor %}
+                                
+                                <div class="submit">
+                                    <button type="submit" class="btn primary-btn">Add Supervisor</button>
+                                </div>
+                            </form>
                         </div>
-                    {% else %}
-                        <p class="empty-state"><em>No supervisors have been added yet.</em></p>
-                    {% endif %}
-                </div>
-            </div>
 
-            <!-- Porters Section -->
-            <div v-show="activeStaffType === 'porters'" class="staff-section porters-section">
-                <div class="add-staff-form">
-                    <h2>Add New Porter</h2>
-                    
-                    {% if success is defined and staffType == 'porter' %}
-                        <div class="notification success">
-                            Porter has been saved successfully!
+                        <div class="staff-list">
+                            <h2>Existing Supervisors</h2>
+                            {% set supervisors = craft.entries()
+                                .section('supervisors')
+                                .orderBy('title asc')
+                                .all() %}
+
+                            {% if supervisors|length %}
+                                <div class="staff-cards">
+                                    {% for supervisor in supervisors %}
+                                        <div class="staff-card">
+                                            <div class="staff-card-content">
+                                                <div class="staff-card-header">
+                                                    <h3 class="staff-name">{{ supervisor.title }} {{ supervisor.fd_surname }}</h3>
+                                                </div>
+                                                <div class="staff-card-actions">
+                                                    <a href="{{ url('settings/supervisor/' ~ supervisor.id) }}" class="btn small">Edit</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="empty-state"><em>No supervisors have been added yet.</em></p>
+                            {% endif %}
                         </div>
-                    {% endif %}
+                    </div>
 
-                    {% set porterEntry = entry is defined and staffType == 'porter' ? entry : craft.entries.section('porters').one() ?? create('craft\\elements\\Entry') %}
-                    
-                    <form method="post" accept-charset="UTF-8">
-                        {{ csrfInput() }}
-                        {{ actionInput('entries/save-entry') }}
-                        {{ redirectInput(siteUrl('settings?staffType=porter')) }}
-                        {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('porters').id) }}
-                        {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('porters').entryTypes[0].id) }}
-                        {{ hiddenInput('enabled', '1') }}
-                        {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
-                        
-                        <div class="field-group">
-                            <div class="field">
-                                <label for="porter-title">First Name *</label>
-                                {{ input('text', 'title', porterEntry.title, {
-                                    id: 'porter-title',
-                                    required: true,
-                                    class: 'form-control'
-                                }) }}
-                                {% if porterEntry is defined and porterEntry.hasErrors('title') %}
-                                    <span class="error">{{ porterEntry.getFirstError('title') }}</span>
-                                {% endif %}
-                            </div>
+                    <!-- Porters Section -->
+                    <div class="staff-section porters-section" style="display: none;">
+                        <div class="add-staff-form">
+                            <h2>Add New Porter</h2>
                             
-                            <div class="field">
-                                <label for="porter-surname">Surname *</label>
-                                {{ input('text', 'fields[fd_surname]', porterEntry.fd_surname, {
-                                    id: 'porter-surname',
-                                    required: true,
-                                    class: 'form-control'
-                                }) }}
-                                {% if porterEntry is defined and porterEntry.hasErrors('fd_surname') %}
-                                    <span class="error">{{ porterEntry.getFirstError('fd_surname') }}</span>
-                                {% endif %}
-                            </div>
-                        </div>
-                        
-                        <div class="submit">
-                            <button type="submit" class="btn primary-btn">Add Porter</button>
-                        </div>
-                    </form>
-                </div>
+                            {% if success is defined and staffType == 'porter' %}
+                                <div class="notification success">
+                                    Porter has been saved successfully!
+                                </div>
+                            {% endif %}
 
-                <div class="staff-list">
-                    <h2>Existing Porters</h2>
-                    {% set porters = craft.entries()
-                        .section('porters')
-                        .orderBy('title asc')
-                        .all() %}
-
-                    {% if porters|length %}
-                        <div class="staff-cards">
-                            {% for porter in porters %}
-                                <div class="staff-card">
-                                    <div v-if="editingPorterId === {{ porter.id }}" class="staff-card-edit-form">
-                                        <form @submit.prevent="submitStaffEdit($event, {{ porter.id }}, 'porter')">
-                                            {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('porters').id) }}
-                                            {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('porters').entryTypes[0].id) }}
-                                            {{ actionInput('entries/save-entry') }}
-                                            {{ hiddenInput('enabled', '1') }}
-                                            {{ hiddenInput('id', porter.id) }}
-                                            
-                                            <div class="inline-field-group">
-                                                <div class="field">
-                                                    <label for="edit-porter-title-{{ porter.id }}">First Name</label>
-                                                    <input type="text" name="title" id="edit-porter-title-{{ porter.id }}" 
-                                                           required value="{{ porter.title }}" class="form-control">
-                                                </div>
-                                                <div class="field">
-                                                    <label for="edit-porter-surname-{{ porter.id }}">Surname</label>
-                                                    <input type="text" name="fields[fd_surname]" id="edit-porter-surname-{{ porter.id }}"
-                                                           required value="{{ porter.fd_surname }}" class="form-control">
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="inline-edit-actions">
-                                                <button type="submit" class="btn small">Save</button>
-                                                <button type="button" class="btn small cancel-btn" @click="cancelEdit('porter')">Cancel</button>
-                                            </div>
-                                        </form>
+                            {% set porterEntry = entry is defined and staffType == 'porter' ? entry : craft.entries.section('porters').one() ?? create('craft\\elements\\Entry') %}
+                            
+                            <form method="post" accept-charset="UTF-8">
+                                {{ csrfInput() }}
+                                {{ actionInput('entries/save-entry') }}
+                                {{ redirectInput(url('settings?staffType=porter')) }}
+                                {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('porters').id) }}
+                                {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('porters').entryTypes[0].id) }}
+                                {{ hiddenInput('enabled', '1') }}
+                                {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
+                                
+                                <div class="field-group">
+                                    <div class="field">
+                                        <label for="porter-title">First Name *</label>
+                                        {{ input('text', 'title', porterEntry.title, {
+                                            id: 'porter-title',
+                                            required: true,
+                                            class: 'form-control'
+                                        }) }}
+                                        {% if porterEntry is defined and porterEntry.hasErrors('title') %}
+                                            <span class="error">{{ porterEntry.getFirstError('title') }}</span>
+                                        {% endif %}
                                     </div>
                                     
-                                    <div v-else class="staff-card-content">
-                                        <div class="staff-card-header">
-                                            <h3 class="staff-name">{{ porter.title }} {{ porter.fd_surname }}</h3>
-                                        </div>
-                                        <div class="staff-card-actions">
-                                            <button @click="startEditing({{ porter.id }}, 'porter')" class="btn small">Edit</button>
-                                        </div>
+                                    <div class="field">
+                                        <label for="porter-surname">Surname *</label>
+                                        {{ input('text', 'fields[fd_surname]', porterEntry.fd_surname, {
+                                            id: 'porter-surname',
+                                            required: true,
+                                            class: 'form-control'
+                                        }) }}
+                                        {% if porterEntry is defined and porterEntry.hasErrors('fd_surname') %}
+                                            <span class="error">{{ porterEntry.getFirstError('fd_surname') }}</span>
+                                        {% endif %}
                                     </div>
                                 </div>
-                            {% endfor %}
+                                
+                                <div class="submit">
+                                    <button type="submit" class="btn primary-btn">Add Porter</button>
+                                </div>
+                            </form>
                         </div>
-                    {% else %}
-                        <p class="empty-state"><em>No porters have been added yet.</em></p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
+
+                        <div class="staff-list">
+                            <h2>Existing Porters</h2>
+                            {% set porters = craft.entries()
+                                .section('porters')
+                                .orderBy('title asc')
+                                .all() %}
+
+                            {% if porters|length %}
+                                <div class="staff-cards">
+                                    {% for porter in porters %}
+                                        <div class="staff-card">
+                                            <div class="staff-card-content">
+                                                <div class="staff-card-header">
+                                                    <h3 class="staff-name">{{ porter.title }} {{ porter.fd_surname }}</h3>
+                                                </div>
+                                                <div class="staff-card-actions">
+                                                    <a href="{{ url('settings/porter/' ~ porter.id) }}" class="btn small">Edit</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="empty-state"><em>No porters have been added yet.</em></p>
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
             </div>
             
             <!-- Buildings & Departments Tab -->
             <div class="tab-pane" id="buildings-departments">
                 <div class="settings-section">
+                    <div class="header-with-nav">
+                        <h1>Locations Management</h1>
+                        <div class="nav-links">
+                            <a href="{{ url('settings') }}" class="btn">← Back to Settings</a>
+                        </div>
+                    </div>
 
-    <div class="header-with-nav">
-        <h1>Locations Management</h1>
-        <div class="nav-links">
-            <a href="{{ siteUrl('settings') }}" class="btn">← Back to Settings</a>
-        </div>
-    </div>
-
-
-    <div id="locations-app">
-        <div class="add-building-form">
-            <h2>Add New Building</h2>
-            
-            {% set entry = entry is defined ? entry : craft.entries.section('locations').one() ?? create('craft\\elements\\Entry') %}
-            
-            <form method="post" accept-charset="UTF-8">
-                {{ csrfInput() }}
-                {{ actionInput('entries/save-entry') }}
-                {{ redirectInput(siteUrl('settings/buildings-departments')) }}
-                {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('locations').id) }}
-                {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('locations').entryTypes[0].id) }}
-                {{ hiddenInput('enabled', '1') }}
-                {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
-                
-                <div class="field">
-                    <label for="title">Building Name *</label>
-                    {{ input('text', 'title', entry.title, {
-                        id: 'title',
-                        required: true
-                    }) }}
-                    {% if entry is defined and entry.hasErrors('title') %}
-                        <span class="error">{{ entry.getFirstError('title') }}</span>
-                    {% endif %}
-                </div>
-                
-                <div class="submit">
-                    <button type="submit" class="btn">Add Building</button>
-                </div>
-            </form>
-        </div>
-
-        <div class="buildings-list">
-            <h2>Existing Locations</h2>
-            {% set rootLocations = craft.entries()
-                .section('locations')
-                .level(1)
-                .orderBy('title asc')
-                .all() %}
-
-            {% if rootLocations|length %}
-                <div class="locations-tree">
-                    {% for location in rootLocations %}
-                        <div class="location-item level-1">
-                            <div class="location-header">
-                                                <span v-if="editingBuildingId === {{ location.id }}" class="location-title-edit">
-                                                    <form @submit.prevent="submitBuildingEdit($event, {{ location.id }})">
-                                                        {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('locations').id) }}
-                                                        {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('locations').entryTypes[0].id) }}
-                                                        {{ actionInput('entries/save-entry') }}
-                                                        {{ hiddenInput('enabled', '1') }}
-                                                        {{ hiddenInput('id', location.id) }}
-                                                        
-                                                        <div class="inline-edit-field">
-                                                            <input type="text" name="title" required value="{{ location.title }}" class="form-control">
-                                                            <div class="inline-edit-actions">
-                                                                <button type="submit" class="btn small">Save</button>
-                                                                <button type="button" class="btn small cancel-btn" @click="cancelBuildingEdit()">Cancel</button>
-                                                            </div>
-                                                        </div>
-                                                    </form>
-                                                </span>
-                                                <span v-else class="location-title">{{ location.title }}</span>
-                                                <div class="location-actions">
-                                                    <button @click="startBuildingEdit({{ location.id }})" class="btn small">Edit</button>
-                                                    <button class="btn small add-department-btn" @click="showAddForm({{ location.id }})">Add Department</button>
-                                                </div>
+                    <div class="add-building-form">
+                        <h2>Add New Building</h2>
+                        
+                        {% set entry = entry is defined ? entry : craft.entries.section('locations').one() ?? create('craft\\elements\\Entry') %}
+                        
+                        <form method="post" accept-charset="UTF-8">
+                            {{ csrfInput() }}
+                            {{ actionInput('entries/save-entry') }}
+                            {{ redirectInput(url('settings/buildings-departments')) }}
+                            {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('locations').id) }}
+                            {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('locations').entryTypes[0].id) }}
+                            {{ hiddenInput('enabled', '1') }}
+                            {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
+                            
+                            <div class="field">
+                                <label for="title">Building Name *</label>
+                                {{ input('text', 'title', entry.title, {
+                                    id: 'title',
+                                    required: true,
+                                    class: 'form-control'
+                                }) }}
+                                {% if entry is defined and entry.hasErrors('title') %}
+                                    <span class="error">{{ entry.getFirstError('title') }}</span>
+                                {% endif %}
                             </div>
                             
-                            <!-- Inline department form - shown/hidden with Vue -->
-                            <div class="inline-department-form" v-if="activeBuildingId === {{ location.id }}">
-                                <form method="post" accept-charset="UTF-8" @submit.prevent="submitChildForm($event, {{ location.id }})">
-                                    {{ csrfInput() }}
-                                    {{ actionInput('entries/save-entry') }}
-                                    {{ redirectInput(siteUrl('settings/buildings-departments')) }}
-                                    {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('locations').id) }}
-                                    {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('locations').entryTypes[1].id) }}
-                                    {{ hiddenInput('enabled', '1') }}
-                                    {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
-                                    
-                                    {# Critical: This establishes the parent-child relationship in the Structure section #}
-                                    {# In Craft CMS, the parentId parameter is used for Structure sections to establish hierarchy #}
-                                    <input type="hidden" name="parentId" :value="activeBuildingId">
-                                    
-                                    <div class="field">
-                                        <label for="department-title-${location.id}">Department Name *</label>
-                                        <input type="text" name="title" id="department-title-${location.id}" required v-model="departmentName">
-                                    </div>
-                                    
-                                    <div class="form-actions">
-                                        <button type="submit" class="btn">Add Department</button>
-                                        <button type="button" class="btn cancel-btn" @click="cancelAdd">Cancel</button>
-                                    </div>
-                                </form>
+                            <div class="submit">
+                                <button type="submit" class="btn primary-btn">Add Building</button>
                             </div>
-                            
-                            {% set childLocations = craft.entries()
-                                .section('locations')
-                                .descendantOf(location)
-                                .level(2)
-                                .orderBy('title asc')
-                                .all() %}
-                                
-                            {% if childLocations|length %}
-                                <div class="location-children">
-                                    {% for child in childLocations %}
-                                        <div class="location-item level-2">
-                                            <div class="location-header">
-                                                <span v-if="editingDepartmentId === {{ child.id }}" class="location-title-edit">
-                                                    <form @submit.prevent="submitDepartmentEdit($event, {{ child.id }})">
-                                                        {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('locations').id) }}
-                                                        {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('locations').entryTypes[1].id) }}
-                                                        {{ actionInput('entries/save-entry') }}
-                                                        {{ hiddenInput('enabled', '1') }}
-                                                        {{ hiddenInput('id', child.id) }}
-                                                        {{ hiddenInput('parentId', location.id) }}
-                                                        
-                                                        <div class="inline-edit-field">
-                                                            <input type="text" name="title" required value="{{ child.title }}" class="form-control">
-                                                            <div class="inline-edit-actions">
-                                                                <button type="submit" class="btn small">Save</button>
-                                                                <button type="button" class="btn small cancel-btn" @click="cancelDepartmentEdit()">Cancel</button>
-                                                            </div>
-                                                        </div>
-                                                    </form>
-                                                </span>
-                                                <span v-else class="location-title">{{ child.title }}</span>
-                                                <div class="location-actions">
-                                                    <button @click="startDepartmentEdit({{ child.id }})" class="btn small">Edit</button>
-                                                </div>
+                        </form>
+                    </div>
+
+                    <div class="buildings-list">
+                        <h2>Existing Buildings</h2>
+                        {% set rootLocations = craft.entries()
+                            .section('locations')
+                            .level(1)
+                            .orderBy('title asc')
+                            .all() %}
+
+                        {% if rootLocations|length %}
+                            <div class="locations-tree">
+                                {% for location in rootLocations %}
+                                    <div class="location-item level-1">
+                                        <div class="location-header">
+                                            <span class="location-title">{{ location.title }}</span>
+                                            <div class="location-actions">
+                                                <a href="{{ url('settings/building/' ~ location.id) }}" class="btn small">Edit</a>
+                                                <button class="btn small add-department-btn" data-building-id="{{ location.id }}">Add Department</button>
                                             </div>
                                         </div>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <p><em>No locations have been added yet.</em></p>
-            {% endif %}
-        </div>
-    </div>
-
+                                        
+                                        <!-- Inline department form -->
+                                        <div class="inline-department-form" id="department-form-{{ location.id }}" style="display: none;">
+                                            <form method="post" accept-charset="UTF-8">
+                                                {{ csrfInput() }}
+                                                {{ actionInput('entries/save-entry') }}
+                                                {{ redirectInput(url('settings/buildings-departments')) }}
+                                                {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('locations').id) }}
+                                                {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('locations').entryTypes[1].id) }}
+                                                {{ hiddenInput('enabled', '1') }}
+                                                {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
+                                                {{ hiddenInput('parentId', location.id) }}
+                                                
+                                                <div class="field">
+                                                    <label for="department-title-{{ location.id }}">Department Name *</label>
+                                                    <input type="text" name="title" id="department-title-{{ location.id }}" required class="form-control">
+                                                </div>
+                                                
+                                                <div class="form-actions">
+                                                    <button type="submit" class="btn primary-btn">Add Department</button>
+                                                    <button type="button" class="btn cancel-btn" data-building-id="{{ location.id }}">Cancel</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        
+                                        {% set childLocations = craft.entries()
+                                            .section('locations')
+                                            .descendantOf(location)
+                                            .level(2)
+                                            .orderBy('title asc')
+                                            .all() %}
+                                            
+                                        {% if childLocations|length %}
+                                            <div class="location-children">
+                                                {% for child in childLocations %}
+                                                    <div class="location-item level-2">
+                                                        <div class="location-header">
+                                                            <span class="location-title">{{ child.title }}</span>
+                                                            <div class="location-actions">
+                                                                <a href="{{ url('settings/department/' ~ child.id) }}" class="btn small">Edit</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="empty-state"><em>No buildings have been added yet.</em></p>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
             
@@ -420,862 +333,372 @@
             <div class="tab-pane" id="task-types">
                 <div class="settings-section">
                     <div class="header-with-nav">
-                        <h1>Task Categories Management</h1>
+                        <h1>Task Categories</h1>
                         <div class="nav-links">
-                            <a href="{{ siteUrl('settings') }}" class="btn">← Back to Settings</a>
+                            <a href="{{ url('settings') }}" class="btn">← Back to Settings</a>
                         </div>
                     </div>
 
-                    <div id="task-categories-app">
-                        <div class="add-category-form">
-                            <h2>Add New Task Category</h2>
+                    <div class="add-category-form">
+                        <h2>Add New Task Category</h2>
+                        
+                        {% set entry = entry is defined ? entry : craft.entries.section('taskCategories').one() ?? create('craft\\elements\\Entry') %}
+                        
+                        <form method="post" accept-charset="UTF-8">
+                            {{ csrfInput() }}
+                            {{ actionInput('entries/save-entry') }}
+                            {{ redirectInput(url('settings/task-types')) }}
+                            {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('taskCategories').id) }}
+                            {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('taskCategories').entryTypes[0].id) }}
+                            {{ hiddenInput('enabled', '1') }}
+                            {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
                             
-                            {% set entry = entry is defined ? entry : craft.entries.section('taskCategories').one() ?? create('craft\\elements\\Entry') %}
+                            <div class="field">
+                                <label for="title">Category Name *</label>
+                                {{ input('text', 'title', entry.title, {
+                                    id: 'title',
+                                    required: true,
+                                    class: 'form-control'
+                                }) }}
+                                {% if entry is defined and entry.hasErrors('title') %}
+                                    <span class="error">{{ entry.getFirstError('title') }}</span>
+                                {% endif %}
+                            </div>
                             
-                            <form method="post" accept-charset="UTF-8">
-                                {{ csrfInput() }}
-                                {{ actionInput('entries/save-entry') }}
-                                {{ redirectInput(siteUrl('settings/task-types')) }}
-                                {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('taskCategories').id) }}
-                                {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('taskCategories').entryTypes[0].id) }}
-                                {{ hiddenInput('enabled', '1') }}
-                                {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
-                                
-                                <div class="field">
-                                    <label for="title">Category Name *</label>
-                                    {{ input('text', 'title', entry.title, {
-                                        id: 'title',
-                                        required: true
-                                    }) }}
-                                    {% if entry is defined and entry.hasErrors('title') %}
-                                        <span class="error">{{ entry.getFirstError('title') }}</span>
-                                    {% endif %}
-                                </div>
-                                
-                                <div class="submit">
-                                    <button type="submit" class="btn">Add Category</button>
-                                </div>
-                            </form>
-                        </div>
+                            <div class="submit">
+                                <button type="submit" class="btn primary-btn">Add Category</button>
+                            </div>
+                        </form>
+                    </div>
 
-                        <div class="categories-list">
-                            <h2>Existing Task Categories</h2>
-                            {% set rootCategories = craft.entries()
-                                .section('taskCategories')
-                                .level(1)
-                                .orderBy('title asc')
-                                .all() %}
+                    <div class="categories-list">
+                        <h2>Existing Task Categories</h2>
+                        {% set rootCategories = craft.entries()
+                            .section('taskCategories')
+                            .level(1)
+                            .orderBy('title asc')
+                            .all() %}
 
-                            {% if rootCategories|length %}
-                                <div class="categories-tree">
-                                    {% for category in rootCategories %}
-                                        <div class="category-item level-1">
-                                            <div class="category-header">
-                                                <span v-if="editingCategoryId === {{ category.id }}" class="category-title-edit">
-                                                    <form @submit.prevent="submitCategoryEdit($event, {{ category.id }})">
-                                                        {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('taskCategories').id) }}
-                                                        {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('taskCategories').entryTypes[0].id) }}
-                                                        {{ actionInput('entries/save-entry') }}
-                                                        {{ hiddenInput('enabled', '1') }}
-                                                        {{ hiddenInput('id', category.id) }}
-                                                        
-                                                        <div class="inline-edit-field">
-                                                            <input type="text" name="title" required value="{{ category.title }}" class="form-control">
-                                                            <div class="inline-edit-actions">
-                                                                <button type="submit" class="btn small">Save</button>
-                                                                <button type="button" class="btn small cancel-btn" @click="cancelCategoryEdit()">Cancel</button>
-                                                            </div>
-                                                        </div>
-                                                    </form>
-                                                </span>
-                                                <span v-else class="category-title">{{ category.title }}</span>
-                                                <div class="category-actions">
-                                                    <button @click="startCategoryEdit({{ category.id }})" class="btn small">Edit</button>
-                                                    <button class="btn small add-subcategory-btn" @click="showAddForm({{ category.id }})">Add Subcategory</button>
-                                                </div>
+                        {% if rootCategories|length %}
+                            <div class="categories-tree">
+                                {% for category in rootCategories %}
+                                    <div class="category-item level-1">
+                                        <div class="category-header">
+                                            <span class="category-title">{{ category.title }}</span>
+                                            <div class="category-actions">
+                                                <a href="{{ url('settings/category/' ~ category.id) }}" class="btn small">Edit</a>
+                                                <button class="btn small add-subcategory-btn" data-category-id="{{ category.id }}">Add Subcategory</button>
                                             </div>
-                                            
-                                            <!-- Inline subcategory form - shown/hidden with Vue -->
-                                            <div class="inline-subcategory-form" v-if="activeCategoryId === {{ category.id }}">
-                                                <form method="post" accept-charset="UTF-8" @submit.prevent="submitChildForm($event, {{ category.id }})">
-                                                    {{ csrfInput() }}
-                                                    {{ actionInput('entries/save-entry') }}
-                                                    {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('taskCategories').id) }}
-                                                    {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('taskCategories').entryTypes[0].id) }}
-                                                    {{ hiddenInput('enabled', '1') }}
-                                                    {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
-                                                    
-                                                    {# Critical: This establishes the parent-child relationship in the Structure section #}
-                                                    <input type="hidden" name="parentId" :value="activeCategoryId">
-                                                    
-                                                    <div class="field">
-                                                        <label for="subcategory-title-${category.id}">Subcategory Name *</label>
-                                                        <input type="text" name="title" id="subcategory-title-${category.id}" required v-model="subcategoryName">
-                                                    </div>
-                                                    
-                                                    <div class="form-actions">
-                                                        <button type="submit" class="btn">Add Subcategory</button>
-                                                        <button type="button" class="btn cancel-btn" @click="cancelAdd">Cancel</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                            
-                                            {% set childCategories = craft.entries()
-                                                .section('taskCategories')
-                                                .descendantOf(category)
-                                                .level(2)
-                                                .orderBy('title asc')
-                                                .all() %}
-                                                
-                                            {% if childCategories|length %}
-                                                <div class="category-children">
-                                                    {% for child in childCategories %}
-                                                        <div class="category-item level-2">
-                                                            <div class="category-header">
-                                                                <span v-if="editingSubcategoryId === {{ child.id }}" class="category-title-edit">
-                                                                    <form @submit.prevent="submitSubcategoryEdit($event, {{ child.id }})">
-                                                                        {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('taskCategories').id) }}
-                                                                        {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('taskCategories').entryTypes[0].id) }}
-                                                                        {{ actionInput('entries/save-entry') }}
-                                                                        {{ hiddenInput('enabled', '1') }}
-                                                                        {{ hiddenInput('id', child.id) }}
-                                                                        {{ hiddenInput('parentId', category.id) }}
-                                                                        
-                                                                        <div class="inline-edit-field">
-                                                                            <input type="text" name="title" required value="{{ child.title }}" class="form-control">
-                                                                            <div class="inline-edit-actions">
-                                                                                <button type="submit" class="btn small">Save</button>
-                                                                                <button type="button" class="btn small cancel-btn" @click="cancelSubcategoryEdit()">Cancel</button>
-                                                                            </div>
-                                                                        </div>
-                                                                    </form>
-                                                                </span>
-                                                                <span v-else class="category-title">{{ child.title }}</span>
-                                                                <div class="category-actions">
-                                                                    <button @click="startSubcategoryEdit({{ child.id }})" class="btn small">Edit</button>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    {% endfor %}
-                                                </div>
-                                            {% endif %}
                                         </div>
-                                    {% endfor %}
-                                </div>
-                            {% else %}
-                                <p><em>No task categories have been added yet.</em></p>
-                            {% endif %}
-                        </div>
+                                        
+                                        <!-- Inline subcategory form -->
+                                        <div class="inline-subcategory-form" id="subcategory-form-{{ category.id }}" style="display: none;">
+                                            <form method="post" accept-charset="UTF-8">
+                                                {{ csrfInput() }}
+                                                {{ actionInput('entries/save-entry') }}
+                                                {{ redirectInput(url('settings/task-types')) }}
+                                                {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('taskCategories').id) }}
+                                                {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('taskCategories').entryTypes[0].id) }}
+                                                {{ hiddenInput('enabled', '1') }}
+                                                {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
+                                                {{ hiddenInput('parentId', category.id) }}
+                                                
+                                                <div class="field">
+                                                    <label for="subcategory-title-{{ category.id }}">Subcategory Name *</label>
+                                                    <input type="text" name="title" id="subcategory-title-{{ category.id }}" required class="form-control">
+                                                </div>
+                                                
+                                                <div class="form-actions">
+                                                    <button type="submit" class="btn primary-btn">Add Subcategory</button>
+                                                    <button type="button" class="btn cancel-btn" data-category-id="{{ category.id }}">Cancel</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        
+                                        {% set childCategories = craft.entries()
+                                            .section('taskCategories')
+                                            .descendantOf(category)
+                                            .level(2)
+                                            .orderBy('title asc')
+                                            .all() %}
+                                            
+                                        {% if childCategories|length %}
+                                            <div class="category-children">
+                                                {% for child in childCategories %}
+                                                    <div class="category-item level-2">
+                                                        <div class="category-header">
+                                                            <span class="category-title">{{ child.title }}</span>
+                                                            <div class="category-actions">
+                                                                <a href="{{ url('settings/subcategory/' ~ child.id) }}" class="btn small">Edit</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="empty-state"><em>No task categories have been added yet.</em></p>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
     </div>
     
+    {# External CSS and JS resources #}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{{ siteUrl }}settings-styles.css">
+    <script src="{{ siteUrl }}js/settings.js"></script>
+    
     <style>
-        /* =============== General Layout Styles =============== */
-        .settings-page h1 {
-            margin-bottom: 30px;
+        /* Settings Page Styles */
+        .settings-page {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
-        
-        /* =============== Tab Navigation =============== */
+        .settings-header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eaeaea;
+        }
+        .settings-header h1 {
+            font-size: 2.4rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        .settings-description {
+            color: #666;
+            font-size: 1.1rem;
+            line-height: 1.4;
+        }
         .settings-navigation {
             margin-bottom: 30px;
         }
-        
         .nav-tabs {
             display: flex;
             list-style: none;
             padding: 0;
             margin: 0;
-            border-bottom: 1px solid #dee2e6;
+            border-bottom: 2px solid #eaeaea;
+            overflow-x: auto;
         }
-        
         .nav-item {
-            margin-bottom: -1px;
+            margin-right: 5px;
         }
-        
         .nav-link {
-            display: block;
-            padding: 10px 15px;
-            margin-right: 2px;
-            border: 1px solid transparent;
-            border-top-left-radius: 4px;
-            border-top-right-radius: 4px;
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            color: #666;
             text-decoration: none;
+            border-radius: 4px 4px 0 0;
+            border: 1px solid transparent;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            font-weight: 500;
         }
-        
+        .nav-link i {
+            margin-right: 8px;
+            font-size: 1.1rem;
+        }
+        .nav-link:hover {
+            background-color: rgba(0, 0, 0, 0.03);
+            color: #333;
+        }
         .nav-link.active {
+            color: #0a6ebd;
+            border: 1px solid #eaeaea;
+            border-bottom: 2px solid #fff;
+            border-bottom-width: 3px;
+            margin-bottom: -2px;
             background-color: #fff;
-            border-color: #dee2e6 #dee2e6 #fff;
-            color: #0d6efd;
+            box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.05);
         }
-        
-        .tab-content {
-            padding: 20px 0;
-        }
-        
         .tab-pane {
             display: none;
+            padding: 20px 0;
         }
-        
         .tab-pane.active {
             display: block;
         }
-        
-        /* =============== Notifications =============== */
-        .notification {
-            padding: 12px 15px;
-            margin-bottom: 15px;
-            border-radius: 4px;
-            border-left: 4px solid;
-        }
-        
-        .notification.success {
-            background-color: #d4edda;
-            border-color: #28a745;
-            color: #155724;
-        }
-        
-        /* =============== Staff Management Styles =============== */
         .staff-type-tabs {
             display: flex;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #eaeaea;
+            padding-bottom: 5px;
         }
-        
         .staff-tab-btn {
             padding: 10px 20px;
-            background: none;
-            border: 1px solid transparent;
-            border-bottom: none;
-            border-top-left-radius: 4px;
-            border-top-right-radius: 4px;
+            margin-right: 10px;
+            background: transparent;
+            border: none;
+            border-radius: 4px;
+            color: #666;
             cursor: pointer;
             font-weight: 500;
-            margin-right: 5px;
-            margin-bottom: -1px;
-            transition: all 0.2s ease;
+            transition: all 0.2s;
         }
-        
-        .staff-tab-btn.active {
-            background-color: #fff;
-            border-color: #dee2e6;
-            border-bottom-color: #fff;
-            color: #0d6efd;
-        }
-        
-        .staff-section {
-            margin-top: 20px;
-        }
-        
-        .staff-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        .staff-card {
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            background-color: #f9f9f9;
-            padding: 15px;
-            transition: all 0.2s ease;
-        }
-        
-        .staff-card:hover {
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            transform: translateY(-2px);
-        }
-        
-        .staff-card-header {
-            margin-bottom: 10px;
-        }
-        
-        .staff-name {
-            font-size: 1.1em;
-            margin: 0;
+        .staff-tab-btn:hover {
+            background-color: rgba(0, 0, 0, 0.05);
             color: #333;
         }
-        
-        .staff-card-actions {
-            margin-top: 10px;
-            display: flex;
-            justify-content: flex-end;
+        .staff-tab-btn.active {
+            background-color: #0a6ebd;
+            color: #fff;
         }
-        
-        .empty-state {
-            color: #6c757d;
-            font-style: italic;
-            margin: 20px 0;
-        }
-        
-        .field-group {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-        
-        .field-group .field {
-            flex: 1;
-        }
-        
-        /* =============== Form Styles =============== */
-        .field {
-            margin-bottom: 15px;
-        }
-        
-        .form-actions {
-            display: flex;
-            margin-top: 15px;
-        }
-        
-        .submit {
-            margin-top: 20px;
-        }
-        
-        .cancel-btn {
-            background-color: #6c757d;
-            margin-left: 10px;
-        }
-        
-        .add-building-form,
-        .add-category-form {
-            max-width: 600px;
-            margin-bottom: 30px;
-        }
-        
-        /* =============== Hierarchical Tree Styles =============== */
-        /* Common styles for both locations and categories */
-        .locations-tree,
-        .categories-tree {
-            margin-top: 20px;
-        }
-        
-        .location-item,
-        .category-item {
-            margin-bottom: 10px;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            background-color: #f9f9f9;
-            transition: all 0.2s ease;
-        }
-        
-        .location-item:hover,
-        .category-item:hover {
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        
-        .location-header,
-        .category-header {
-            padding: 12px 15px;
+        .header-with-nav {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 30px;
         }
-        
-        .location-title,
-        .category-title {
-            font-weight: 600;
-            font-size: 1.1em;
+        .header-with-nav h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            color: #333;
         }
-        
-        .location-actions,
-        .category-actions {
-            display: flex;
-            gap: 8px;
+        .add-staff-form, .add-building-form, .add-category-form {
+            background: #f9f9f9;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
-        
-        .location-children,
-        .category-children {
-            padding: 0 0 10px 30px;
-        }
-        
-        /* Hierarchy level styling */
-        .level-1 {
-            background-color: #f5f5f5;
-        }
-        
-        .level-2 {
-            background-color: #ffffff;
-            border-left: 3px solid #0d6efd;
-            margin-top: 8px;
-        }
-        
-        /* Inline form styles */
-        .inline-department-form,
-        .inline-subcategory-form {
-            padding: 15px 30px;
-            background-color: #f0f7ff;
-            border-top: 1px solid #cfdaeb;
-            margin-top: 5px;
-            animation: fadeIn 0.3s ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        /* =============== Miscellaneous Components =============== */
-        .section-cards {
-            display: flex;
-            flex-wrap: wrap;
+        .field-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 20px;
+            margin-bottom: 20px;
         }
-        
-        .settings-card {
-            flex: 1;
-            min-width: 300px;
-            background-color: #f9f9f9;
-            border: 1px solid #eee;
-            border-radius: 5px;
-            padding: 20px;
+        .field {
+            margin-bottom: 20px;
         }
-        
-        .settings-card h2 {
-            margin-top: 0;
-            color: #0d6efd;
+        .field label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #444;
         }
-        
-        .card-count {
-            margin: 15px 0;
-            font-size: 0.9em;
-            color: #666;
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
         }
-        
-        .card-actions {
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 16px;
+            background-color: #f0f0f0;
+            color: #333;
+            border: none;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .btn:hover {
+            background-color: #e5e5e5;
+        }
+        .btn.primary-btn {
+            background-color: #0a6ebd;
+            color: white;
+        }
+        .btn.primary-btn:hover {
+            background-color: #085fa3;
+        }
+        .btn.small {
+            padding: 6px 12px;
+            font-size: 0.9rem;
+        }
+        .staff-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
             margin-top: 20px;
         }
-        
-        .section-notice {
-            background-color: #f8f9fa;
-            border-left: 4px solid #0d6efd;
+        .staff-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        .staff-card-content {
+            padding: 20px;
+        }
+        .staff-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .staff-name {
+            margin: 0;
+            font-size: 1.25rem;
+            color: #333;
+        }
+        .location-item, .category-item {
+            border: 1px solid #eaeaea;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            background: white;
+        }
+        .location-item.level-1, .category-item.level-1 {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        .location-item.level-2, .category-item.level-2 {
+            margin-bottom: 10px;
+            border-left: 3px solid #0a6ebd;
+        }
+        .location-header, .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             padding: 15px;
-            margin: 20px 0;
+        }
+        .location-title, .category-title {
+            font-weight: 500;
+            color: #333;
+            font-size: 1.1rem;
+        }
+        .location-children, .category-children {
+            padding: 0 15px 15px 30px;
+        }
+        .empty-state {
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            background: #f9f9f9;
+            border-radius: 6px;
+            margin-top: 20px;
+        }
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .notification {
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .notification.success {
+            background-color: #e6f7e9;
+            color: #2c7a39;
+            border-left: 4px solid #2c7a39;
+        }
+        .error {
+            color: #e53935;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: block;
         }
     </style>
-    
-    {# Load Vue.js CDN #}
-    <script src="https://unpkg.com/vue@3.2.31/dist/vue.global.js"></script>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Tab navigation
-            initTabNavigation();
-            
-            // Initialize Vue apps for hierarchical data management
-            initHierarchicalApps();
-        });
-
-        /**
-         * Initialize tab navigation functionality
-         */
-        function initTabNavigation() {
-            const tabs = document.querySelectorAll('.nav-link');
-            
-            tabs.forEach(tab => {
-                tab.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    
-                    // Hide all tab panes
-                    document.querySelectorAll('.tab-pane').forEach(pane => {
-                        pane.classList.remove('active');
-                    });
-                    
-                    // Deactivate all tabs
-                    tabs.forEach(t => {
-                        t.classList.remove('active');
-                    });
-                    
-                    // Activate clicked tab
-                    this.classList.add('active');
-                    
-                    // Show corresponding pane
-                    const target = this.getAttribute('href');
-                    document.querySelector(target).classList.add('active');
-                });
-            });
-        }
-
-        /**
-         * Creates a hierarchical data management app
-         */
-        function createHierarchicalApp(options) {
-            const { 
-                activeItemIdProperty, 
-                childNameProperty,
-                addSuccessMessage,
-                addButtonLabel,
-                formClasses 
-            } = options;
-            
-            const { createApp } = Vue;
-            
-            return createApp({
-                data() {
-                    return {
-                        [activeItemIdProperty]: null,
-                        [childNameProperty]: '',
-                    }
-                },
-                methods: {
-                    showAddForm(itemId) {
-                        // Toggle form visibility
-                        if (this[activeItemIdProperty] === itemId) {
-                            this[activeItemIdProperty] = null;
-                        } else {
-                            this[activeItemIdProperty] = itemId;
-                            this[childNameProperty] = '';
-                        }
-                    },
-                    
-                    cancelAdd() {
-                        this[activeItemIdProperty] = null;
-                        this[childNameProperty] = '';
-                    },
-                    
-                    submitChildForm(e, parentId) {
-                        // Validate the form
-                        if (!this[childNameProperty].trim()) {
-                            alert(`Please enter a ${childNameProperty.replace('Name', '')} name`);
-                            return;
-                        }
-                        
-                        // Get form data and submit via AJAX
-                        const formData = new FormData(e.target);
-                        
-                        fetch('', {
-                            method: 'POST',
-                            body: formData,
-                        })
-                        .then(response => response.text())
-                        .then(html => {
-                            // Show success notification
-                            this.showSuccessNotification(e.target, addSuccessMessage);
-                            
-                            // Refresh the children list for this parent
-                            this.refreshChildrenList(parentId);
-                        })
-                        .catch(error => {
-                            console.error('Error submitting form:', error);
-                            alert(`There was an error. Please try again.`);
-                        });
-                    },
-                    
-                    showSuccessNotification(formElement, message) {
-                        // Create and display notification
-                        const notification = document.createElement('div');
-                        notification.className = 'notification success';
-                        notification.innerHTML = message;
-                        
-                        // Insert notification near the form
-                        const formParent = formElement.closest(formClasses);
-                        formParent.prepend(notification);
-                        
-                        // Remove notification after delay
-                        setTimeout(() => notification.remove(), 2000);
-                    },
-                    
-                    refreshChildrenList(parentId) {
-                        // Force a refresh by toggling the active state
-                        const tempId = this[activeItemIdProperty];
-                        this[activeItemIdProperty] = null;
-                        
-                        setTimeout(() => {
-                            this[activeItemIdProperty] = null;
-                            this[childNameProperty] = '';
-                        }, 100);
-                    }
-                }
-            });
-        }
-
-        /**
-         * Initialize all hierarchical data management apps
-         */
-        function initHierarchicalApps() {
-            // Staff Management App
-            const staffApp = Vue.createApp({
-                data() {
-                    return {
-                        activeStaffType: 'supervisors',
-                        editingSupervisorId: null,
-                        editingPorterId: null
-                    }
-                },
-                methods: {
-                    startEditing(id, type) {
-                        if (type === 'supervisor') {
-                            this.editingSupervisorId = id;
-                            this.editingPorterId = null;
-                        } else if (type === 'porter') {
-                            this.editingPorterId = id;
-                            this.editingSupervisorId = null;
-                        }
-                    },
-                    
-                    cancelEdit(type) {
-                        if (type === 'supervisor') {
-                            this.editingSupervisorId = null;
-                        } else if (type === 'porter') {
-                            this.editingPorterId = null;
-                        }
-                    },
-                    
-                    submitStaffEdit(e, id, type) {
-                        // Get form data and submit via AJAX
-                        const formData = new FormData(e.target);
-                        
-                        fetch('', {
-                            method: 'POST',
-                            body: formData,
-                        })
-                        .then(response => response.text())
-                        .then(html => {
-                            // Show success notification
-                            const notification = document.createElement('div');
-                            notification.className = 'notification success';
-                            notification.innerHTML = `${type.charAt(0).toUpperCase() + type.slice(1)} has been updated successfully!`;
-                            
-                            // Insert notification near the form
-                            const formParent = e.target.closest('.staff-card');
-                            formParent.prepend(notification);
-                            
-                            // Remove notification after delay and refresh data
-                            setTimeout(() => {
-                                notification.remove();
-                                this.cancelEdit(type);
-                                
-                                // In a real application, we would fetch updated data here
-                                // For this demo, we'll rely on the page refreshing when needed
-                                window.location.reload();
-                            }, 1500);
-                        })
-                        .catch(error => {
-                            console.error('Error updating staff:', error);
-                            alert(`There was an error updating the ${type}. Please try again.`);
-                        });
-                    }
-                }
-            });
-            
-            const staffAppContainer = document.getElementById('staff-management-app');
-            if (staffAppContainer) {
-                staffApp.mount('#staff-management-app');
-            }
-            
-            // Location Management App
-            const locationsAppBase = createHierarchicalApp({
-                activeItemIdProperty: 'activeBuildingId',
-                childNameProperty: 'departmentName',
-                addSuccessMessage: 'Department has been added successfully!',
-                addButtonLabel: 'Add Department',
-                formClasses: '.inline-department-form'
-            });
-            
-            // Extend the base app with building editing functionality
-            const locationsApp = locationsAppBase.extend({
-                data() {
-                    return {
-                        ...locationsAppBase.data(),
-                        editingBuildingId: null,
-                        editingDepartmentId: null
-                    }
-                },
-                methods: {
-                    ...locationsAppBase.methods,
-                    startBuildingEdit(id) {
-                        this.editingBuildingId = id;
-                    },
-                    cancelBuildingEdit() {
-                        this.editingBuildingId = null;
-                    },
-                    submitBuildingEdit(e, id) {
-                        // Get form data and submit via AJAX
-                        const formData = new FormData(e.target);
-                        
-                        fetch('', {
-                            method: 'POST',
-                            body: formData,
-                        })
-                        .then(response => response.text())
-                        .then(html => {
-                            // Show success notification
-                            const notification = document.createElement('div');
-                            notification.className = 'notification success';
-                            notification.innerHTML = 'Building has been updated successfully!';
-                            
-                            // Insert notification near the form
-                            const header = e.target.closest('.location-header');
-                            header.prepend(notification);
-                            
-                            // Remove notification after delay and refresh data
-                            setTimeout(() => {
-                                notification.remove();
-                                this.cancelBuildingEdit();
-                                window.location.reload();
-                            }, 1500);
-                        })
-                        .catch(error => {
-                            console.error('Error updating building:', error);
-                            alert('There was an error updating the building. Please try again.');
-                        });
-                    },
-                    
-                    startDepartmentEdit(id) {
-                        this.editingDepartmentId = id;
-                    },
-                    
-                    cancelDepartmentEdit() {
-                        this.editingDepartmentId = null;
-                    },
-                    
-                    submitDepartmentEdit(e, id) {
-                        // Get form data and submit via AJAX
-                        const formData = new FormData(e.target);
-                        
-                        fetch('', {
-                            method: 'POST',
-                            body: formData,
-                        })
-                        .then(response => response.text())
-                        .then(html => {
-                            // Show success notification
-                            const notification = document.createElement('div');
-                            notification.className = 'notification success';
-                            notification.innerHTML = 'Department has been updated successfully!';
-                            
-                            // Insert notification near the form
-                            const header = e.target.closest('.location-header');
-                            header.prepend(notification);
-                            
-                            // Remove notification after delay and refresh data
-                            setTimeout(() => {
-                                notification.remove();
-                                this.cancelDepartmentEdit();
-                                window.location.reload();
-                            }, 1500);
-                        })
-                        .catch(error => {
-                            console.error('Error updating department:', error);
-                            alert('There was an error updating the department. Please try again.');
-                        });
-                    }
-                }
-            });
-            
-            // Task Categories App
-            const categoriesAppBase = createHierarchicalApp({
-                activeItemIdProperty: 'activeCategoryId',
-                childNameProperty: 'subcategoryName',
-                addSuccessMessage: 'Subcategory has been added successfully!',
-                addButtonLabel: 'Add Subcategory',
-                formClasses: '.inline-subcategory-form'
-            });
-            
-            // Extend the base app with category editing functionality
-            const categoriesApp = categoriesAppBase.extend({
-                data() {
-                    return {
-                        ...categoriesAppBase.data(),
-                        editingCategoryId: null,
-                        editingSubcategoryId: null
-                    }
-                },
-                methods: {
-                    ...categoriesAppBase.methods,
-                    startCategoryEdit(id) {
-                        this.editingCategoryId = id;
-                    },
-                    cancelCategoryEdit() {
-                        this.editingCategoryId = null;
-                    },
-                    submitCategoryEdit(e, id) {
-                        // Get form data and submit via AJAX
-                        const formData = new FormData(e.target);
-                        
-                        fetch('', {
-                            method: 'POST',
-                            body: formData,
-                        })
-                        .then(response => response.text())
-                        .then(html => {
-                            // Show success notification
-                            const notification = document.createElement('div');
-                            notification.className = 'notification success';
-                            notification.innerHTML = 'Category has been updated successfully!';
-                            
-                            // Insert notification near the form
-                            const header = e.target.closest('.category-header');
-                            header.prepend(notification);
-                            
-                            // Remove notification after delay and refresh data
-                            setTimeout(() => {
-                                notification.remove();
-                                this.cancelCategoryEdit();
-                                window.location.reload();
-                            }, 1500);
-                        })
-                        .catch(error => {
-                            console.error('Error updating category:', error);
-                            alert('There was an error updating the category. Please try again.');
-                        });
-                    },
-                    
-                    startSubcategoryEdit(id) {
-                        this.editingSubcategoryId = id;
-                    },
-                    
-                    cancelSubcategoryEdit() {
-                        this.editingSubcategoryId = null;
-                    },
-                    
-                    submitSubcategoryEdit(e, id) {
-                        // Get form data and submit via AJAX
-                        const formData = new FormData(e.target);
-                        
-                        fetch('', {
-                            method: 'POST',
-                            body: formData,
-                        })
-                        .then(response => response.text())
-                        .then(html => {
-                            // Show success notification
-                            const notification = document.createElement('div');
-                            notification.className = 'notification success';
-                            notification.innerHTML = 'Subcategory has been updated successfully!';
-                            
-                            // Insert notification near the form
-                            const header = e.target.closest('.category-header');
-                            header.prepend(notification);
-                            
-                            // Remove notification after delay and refresh data
-                            setTimeout(() => {
-                                notification.remove();
-                                this.cancelSubcategoryEdit();
-                                window.location.reload();
-                            }, 1500);
-                        })
-                        .catch(error => {
-                            console.error('Error updating subcategory:', error);
-                            alert('There was an error updating the subcategory. Please try again.');
-                        });
-                    }
-                }
-            });
-            
-            // Mount apps if containers exist
-            const locationsAppContainer = document.getElementById('locations-app');
-            if (locationsAppContainer) {
-                locationsApp.mount('#locations-app');
-            }
-            
-            const categoriesAppContainer = document.getElementById('task-categories-app');
-            if (categoriesAppContainer) {
-                categoriesApp.mount('#task-categories-app');
-            }
-        }
-    </script>
 {% endblock %}

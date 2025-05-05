@@ -1,0 +1,236 @@
+<!-- Staff Management App -->
+<div class="header-with-nav">
+    <h1>Staff Management</h1>
+    <div class="nav-links">
+        <a href="{{ siteUrl('staff') }}" class="btn">← Back to Staff Management</a>
+    </div>
+</div>
+
+<!-- Sub-navigation tabs for different staff types -->
+<div class="staff-type-tabs">
+    <button class="staff-tab-btn" :class="{ active: activeStaffType === 'supervisors' }" @click="activeStaffType = 'supervisors'">Supervisors</button>
+    <button class="staff-tab-btn" :class="{ active: activeStaffType === 'porters' }" @click="activeStaffType = 'porters'">Porters</button>
+</div>
+
+<!-- Staff management container -->
+<div class="staff-management-container">
+    <!-- Supervisors Section -->
+    <div v-show="activeStaffType === 'supervisors'" class="staff-section supervisors-section">
+        <div class="add-staff-form">
+            <h2>Add New Supervisor</h2>
+            
+            {% if success is defined and staffType == 'supervisor' %}
+                <div class="notification success">
+                    Supervisor has been saved successfully!
+                </div>
+            {% endif %}
+
+            {% set supervisorEntry = entry is defined and staffType == 'supervisor' ? entry : craft.entries.section('supervisors').one() ?? create('craft\\elements\\Entry') %}
+            
+            <form method="post" accept-charset="UTF-8">
+                {{ csrfInput() }}
+                {{ actionInput('entries/save-entry') }}
+                {{ redirectInput(siteUrl('settings?staffType=supervisor')) }}
+                {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('supervisors').id) }}
+                {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('supervisors').entryTypes[0].id) }}
+                {{ hiddenInput('enabled', '1') }}
+                {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
+                
+                <div class="field-group">
+                    <div class="field">
+                        <label for="supervisor-title">First Name *</label>
+                        {{ input('text', 'title', supervisorEntry.title, {
+                            id: 'supervisor-title',
+                            required: true,
+                            class: 'form-control'
+                        }) }}
+                        {% if supervisorEntry is defined and supervisorEntry.hasErrors('title') %}
+                            <span class="error">{{ supervisorEntry.getFirstError('title') }}</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="field">
+                        <label for="supervisor-surname">Surname *</label>
+                        {{ input('text', 'fields[fd_surname]', supervisorEntry.fd_surname, {
+                            id: 'supervisor-surname',
+                            required: true,
+                            class: 'form-control'
+                        }) }}
+                        {% if supervisorEntry is defined and supervisorEntry.hasErrors('fd_surname') %}
+                            <span class="error">{{ supervisorEntry.getFirstError('fd_surname') }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="submit">
+                    <button type="submit" class="btn primary-btn">Add Supervisor</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="staff-list">
+            <h2>Existing Supervisors</h2>
+            {% set supervisors = craft.entries()
+                .section('supervisors')
+                .orderBy('title asc')
+                .all() %}
+
+            {% if supervisors|length %}
+                <div class="staff-cards">
+                    {% for supervisor in supervisors %}
+                        <div class="staff-card">
+                            <div v-if="editingSupervisorId === {{ supervisor.id }}" class="staff-card-edit-form">
+                                <form @submit.prevent="submitStaffEdit($event, {{ supervisor.id }}, 'supervisor')">
+                                    {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('supervisors').id) }}
+                                    {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('supervisors').entryTypes[0].id) }}
+                                    {{ actionInput('entries/save-entry') }}
+                                    {{ hiddenInput('enabled', '1') }}
+                                    {{ hiddenInput('id', supervisor.id) }}
+                                    
+                                    <div class="inline-field-group">
+                                        <div class="field">
+                                            <label for="edit-supervisor-title-{{ supervisor.id }}">First Name</label>
+                                            <input type="text" name="title" id="edit-supervisor-title-{{ supervisor.id }}" 
+                                                   required value="{{ supervisor.title }}" class="form-control">
+                                        </div>
+                                        <div class="field">
+                                            <label for="edit-supervisor-surname-{{ supervisor.id }}">Surname</label>
+                                            <input type="text" name="fields[fd_surname]" id="edit-supervisor-surname-{{ supervisor.id }}"
+                                                   required value="{{ supervisor.fd_surname }}" class="form-control">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="inline-edit-actions">
+                                        <button type="submit" class="btn small">Save</button>
+                                        <button type="button" class="btn small cancel-btn" @click="cancelEdit('supervisor')">Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
+                            
+                            <div v-else class="staff-card-content">
+                                <div class="staff-card-header">
+                                    <h3 class="staff-name">{{ supervisor.title }} {{ supervisor.fd_surname }}</h3>
+                                </div>
+                                <div class="staff-card-actions">
+                                    <button @click="startEditing({{ supervisor.id }}, 'supervisor')" class="btn small">Edit</button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="empty-state"><em>No supervisors have been added yet.</em></p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Porters Section -->
+    <div v-show="activeStaffType === 'porters'" class="staff-section porters-section">
+        <div class="add-staff-form">
+            <h2>Add New Porter</h2>
+            
+            {% if success is defined and staffType == 'porter' %}
+                <div class="notification success">
+                    Porter has been saved successfully!
+                </div>
+            {% endif %}
+
+            {% set porterEntry = entry is defined and staffType == 'porter' ? entry : craft.entries.section('porters').one() ?? create('craft\\elements\\Entry') %}
+            
+            <form method="post" accept-charset="UTF-8">
+                {{ csrfInput() }}
+                {{ actionInput('entries/save-entry') }}
+                {{ redirectInput(siteUrl('settings?staffType=porter')) }}
+                {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('porters').id) }}
+                {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('porters').entryTypes[0].id) }}
+                {{ hiddenInput('enabled', '1') }}
+                {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
+                
+                <div class="field-group">
+                    <div class="field">
+                        <label for="porter-title">First Name *</label>
+                        {{ input('text', 'title', porterEntry.title, {
+                            id: 'porter-title',
+                            required: true,
+                            class: 'form-control'
+                        }) }}
+                        {% if porterEntry is defined and porterEntry.hasErrors('title') %}
+                            <span class="error">{{ porterEntry.getFirstError('title') }}</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="field">
+                        <label for="porter-surname">Surname *</label>
+                        {{ input('text', 'fields[fd_surname]', porterEntry.fd_surname, {
+                            id: 'porter-surname',
+                            required: true,
+                            class: 'form-control'
+                        }) }}
+                        {% if porterEntry is defined and porterEntry.hasErrors('fd_surname') %}
+                            <span class="error">{{ porterEntry.getFirstError('fd_surname') }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="submit">
+                    <button type="submit" class="btn primary-btn">Add Porter</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="staff-list">
+            <h2>Existing Porters</h2>
+            {% set porters = craft.entries()
+                .section('porters')
+                .orderBy('title asc')
+                .all() %}
+
+            {% if porters|length %}
+                <div class="staff-cards">
+                    {% for porter in porters %}
+                        <div class="staff-card">
+                            <div v-if="editingPorterId === {{ porter.id }}" class="staff-card-edit-form">
+                                <form @submit.prevent="submitStaffEdit($event, {{ porter.id }}, 'porter')">
+                                    {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('porters').id) }}
+                                    {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('porters').entryTypes[0].id) }}
+                                    {{ actionInput('entries/save-entry') }}
+                                    {{ hiddenInput('enabled', '1') }}
+                                    {{ hiddenInput('id', porter.id) }}
+                                    
+                                    <div class="inline-field-group">
+                                        <div class="field">
+                                            <label for="edit-porter-title-{{ porter.id }}">First Name</label>
+                                            <input type="text" name="title" id="edit-porter-title-{{ porter.id }}" 
+                                                   required value="{{ porter.title }}" class="form-control">
+                                        </div>
+                                        <div class="field">
+                                            <label for="edit-porter-surname-{{ porter.id }}">Surname</label>
+                                            <input type="text" name="fields[fd_surname]" id="edit-porter-surname-{{ porter.id }}"
+                                                   required value="{{ porter.fd_surname }}" class="form-control">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="inline-edit-actions">
+                                        <button type="submit" class="btn small">Save</button>
+                                        <button type="button" class="btn small cancel-btn" @click="cancelEdit('porter')">Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
+                            
+                            <div v-else class="staff-card-content">
+                                <div class="staff-card-header">
+                                    <h3 class="staff-name">{{ porter.title }} {{ porter.fd_surname }}</h3>
+                                </div>
+                                <div class="staff-card-actions">
+                                    <button @click="startEditing({{ porter.id }}, 'porter')" class="btn small">Edit</button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="empty-state"><em>No porters have been added yet.</em></p>
+            {% endif %}
+        </div>
+    </div>
+</div>

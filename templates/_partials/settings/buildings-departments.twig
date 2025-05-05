@@ -1,0 +1,150 @@
+<!-- Locations Management App -->
+<div class="header-with-nav">
+    <h1>Locations Management</h1>
+    <div class="nav-links">
+        <a href="{{ siteUrl('settings') }}" class="btn">← Back to Settings</a>
+    </div>
+</div>
+
+<div class="add-building-form">
+    <h2>Add New Building</h2>
+    
+    {% set entry = entry is defined ? entry : craft.entries.section('locations').one() ?? create('craft\\elements\\Entry') %}
+    
+    <form method="post" accept-charset="UTF-8">
+        {{ csrfInput() }}
+        {{ actionInput('entries/save-entry') }}
+        {{ redirectInput(siteUrl('settings/buildings-departments')) }}
+        {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('locations').id) }}
+        {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('locations').entryTypes[0].id) }}
+        {{ hiddenInput('enabled', '1') }}
+        {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
+        
+        <div class="field">
+            <label for="title">Building Name *</label>
+            {{ input('text', 'title', entry.title, {
+                id: 'title',
+                required: true,
+                class: 'form-control'
+            }) }}
+            {% if entry is defined and entry.hasErrors('title') %}
+                <span class="error">{{ entry.getFirstError('title') }}</span>
+            {% endif %}
+        </div>
+        
+        <div class="submit">
+            <button type="submit" class="btn primary-btn">Add Building</button>
+        </div>
+    </form>
+</div>
+
+<div class="buildings-list">
+    <h2>Existing Buildings</h2>
+    {% set rootLocations = craft.entries()
+        .section('locations')
+        .level(1)
+        .orderBy('title asc')
+        .all() %}
+
+    {% if rootLocations|length %}
+        <div class="locations-tree">
+            {% for location in rootLocations %}
+                <div class="location-item level-1">
+                    <div class="location-header">
+                        <span v-if="editingBuildingId === {{ location.id }}" class="location-title-edit">
+                            <form @submit.prevent="submitBuildingEdit($event, {{ location.id }})">
+                                {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('locations').id) }}
+                                {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('locations').entryTypes[0].id) }}
+                                {{ actionInput('entries/save-entry') }}
+                                {{ hiddenInput('enabled', '1') }}
+                                {{ hiddenInput('id', location.id) }}
+                                
+                                <div class="inline-edit-field">
+                                    <input type="text" name="title" required value="{{ location.title }}" class="form-control">
+                                    <div class="inline-edit-actions">
+                                        <button type="submit" class="btn small">Save</button>
+                                        <button type="button" class="btn small cancel-btn" @click="cancelBuildingEdit()">Cancel</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </span>
+                        <span v-else class="location-title">{{ location.title }}</span>
+                        <div class="location-actions">
+                            <button @click="startBuildingEdit({{ location.id }})" class="btn small">Edit</button>
+                            <button class="btn small add-department-btn" @click="showAddForm({{ location.id }})">Add Department</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Inline department form - shown/hidden with Vue -->
+                    <div class="inline-department-form" v-if="activeBuildingId === {{ location.id }}">
+                        <form method="post" accept-charset="UTF-8" @submit.prevent="submitChildForm($event, {{ location.id }})">
+                            {{ csrfInput() }}
+                            {{ actionInput('entries/save-entry') }}
+                            {{ redirectInput(siteUrl('settings/buildings-departments')) }}
+                            {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('locations').id) }}
+                            {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('locations').entryTypes[1].id) }}
+                            {{ hiddenInput('enabled', '1') }}
+                            {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
+                            
+                            {# Critical: This establishes the parent-child relationship in the Structure section #}
+                            {# In Craft CMS, the parentId parameter is used for Structure sections to establish hierarchy #}
+                            <input type="hidden" name="parentId" :value="activeBuildingId">
+                            
+                            <div class="field">
+                                <label for="department-title-${location.id}">Department Name *</label>
+                                <input type="text" name="title" id="department-title-${location.id}" required v-model="departmentName" class="form-control">
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="submit" class="btn primary-btn">Add Department</button>
+                                <button type="button" class="btn cancel-btn" @click="cancelAdd">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    {% set childLocations = craft.entries()
+                        .section('locations')
+                        .descendantOf(location)
+                        .level(2)
+                        .orderBy('title asc')
+                        .all() %}
+                        
+                    {% if childLocations|length %}
+                        <div class="location-children">
+                            {% for child in childLocations %}
+                                <div class="location-item level-2">
+                                    <div class="location-header">
+                                        <span v-if="editingDepartmentId === {{ child.id }}" class="location-title-edit">
+                                            <form @submit.prevent="submitDepartmentEdit($event, {{ child.id }})">
+                                                {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('locations').id) }}
+                                                {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('locations').entryTypes[1].id) }}
+                                                {{ actionInput('entries/save-entry') }}
+                                                {{ hiddenInput('enabled', '1') }}
+                                                {{ hiddenInput('id', child.id) }}
+                                                {{ hiddenInput('parentId', location.id) }}
+                                                
+                                                <div class="inline-edit-field">
+                                                    <input type="text" name="title" required value="{{ child.title }}" class="form-control">
+                                                    <div class="inline-edit-actions">
+                                                        <button type="submit" class="btn small">Save</button>
+                                                        <button type="button" class="btn small cancel-btn" @click="cancelDepartmentEdit()">Cancel</button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </span>
+                                        <span v-else class="location-title">{{ child.title }}</span>
+                                        <div class="location-actions">
+                                            <button @click="startDepartmentEdit({{ child.id }})" class="btn small">Edit</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="empty-state"><em>No buildings have been added yet.</em></p>
+    {% endif %}
+</div>
