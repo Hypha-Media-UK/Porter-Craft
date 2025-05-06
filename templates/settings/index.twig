@@ -239,9 +239,8 @@
 
         {% set entry = entry is defined ? entry : craft.entries.section('locations').one() ?? create('craft\\elements\\Entry') %}
         
-        <form method="post" accept-charset="UTF-8">
+        <form method="post" action="{{ url('entries/save-entry') }}">
             {{ csrfInput() }}
-            {{ actionInput('entries/save-entry') }}
             {{ redirectInput('settings') }}
             {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('locations').id) }}
             {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('locations').entryTypes[0].id) }}
@@ -293,9 +292,8 @@
                         
                         {# Inline department form - initially hidden #}
                         <div class="inline-department-form" id="department-form-{{ location.id }}" style="display: none;">
-                            <form method="post" accept-charset="UTF-8">
+                            <form method="post" action="{{ url('entries/save-entry') }}">
                                 {{ csrfInput() }}
-                                {{ actionInput('entries/save-entry') }}
                                 {{ redirectInput('settings') }}
                                 {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('locations').id) }}
                                 {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('locations').entryTypes[0].id) }}
