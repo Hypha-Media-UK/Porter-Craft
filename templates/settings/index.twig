@@ -239,12 +239,9 @@
         
         <form method="post" accept-charset="UTF-8">
             {{ csrfInput() }}
-            {{ actionInput('elements/save') }}
+            {{ actionInput('guest-entries/save') }}
             {{ redirectInput('settings') }}
-            {{ hiddenInput('elementType', 'craft\\elements\\Entry') }}
-            {{ hiddenInput('siteId', craft.app.sites.primarySite.id) }}
-            {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('locations').id) }}
-            {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('locations').entryTypes[0].id) }}
+            {{ hiddenInput('sectionHandle', 'locations') }}
             {{ hiddenInput('enabled', '1') }}
             {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
             
@@ -295,12 +292,9 @@
                         <div class="inline-department-form" id="department-form-{{ location.id }}" style="display: none;">
                             <form method="post" accept-charset="UTF-8">
                                 {{ csrfInput() }}
-                                {{ actionInput('elements/save') }}
+                                {{ actionInput('guest-entries/save') }}
                                 {{ redirectInput('settings') }}
-                                {{ hiddenInput('elementType', 'craft\\elements\\Entry') }}
-                                {{ hiddenInput('siteId', craft.app.sites.primarySite.id) }}
-                                {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('locations').id) }}
-                                {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('locations').entryTypes[0].id) }}
+                                {{ hiddenInput('sectionHandle', 'locations') }}
                                 {{ hiddenInput('enabled', '1') }}
                                 {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
                                 {{ hiddenInput('parentId', location.id) }}
