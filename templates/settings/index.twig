@@ -237,14 +237,17 @@
     <div id="add-department-form" class="add-department-form" style="display: none;">
         <h2>Add New Department</h2>
         
-        <form method="post" accept-charset="UTF-8" class="ajax-form" data-entry-type="department">
+        {% set parentBuilding = null %}
+        
+        <form method="post" accept-charset="UTF-8">
             {{ csrfInput() }}
             {{ actionInput('entries/save-entry') }}
+            {{ redirectInput('settings') }}
             {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('locations').id) }}
-            {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('locations').entryTypes[1].id) }}
+            {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('locations').entryTypes[0].id) }}
             {{ hiddenInput('enabled', '1') }}
             {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
-            {{ hiddenInput('fields[parentId]', '', {id: 'parent-id-field'}) }}
+            {{ hiddenInput('parentId', '', {id: 'parent-id-field'}) }}
             {{ successMessageInput('Department has been added successfully!') }}
             
             <div class="field">
@@ -540,6 +543,11 @@
                     
                     const formData = new FormData(this);
                     const entryType = this.getAttribute('data-entry-type');
+                    
+                    // Log form data for debugging
+                    if (entryType === 'department') {
+                        console.log('Submitting department with parent ID:', formData.get('parentId'));
+                    }
                     
                     // Get the form action URL - default to current URL if none is specified
                     const form = this;
