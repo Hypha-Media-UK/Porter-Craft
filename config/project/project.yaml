@@ -51,10 +51,6 @@ email:
   fromEmail: access@hypha.media
   fromName: 'Porter Craft'
   transportType: craft\mail\transportadapters\Sendmail
-graphql:
-  publicToken:
-    enabled: false
-    expiryDate: null
 meta:
   __names__:
     0ddc1c53-595b-487f-8473-eece2e4861de: 'Ent Supervisors' # Ent Supervisors
