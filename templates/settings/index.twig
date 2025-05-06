@@ -291,15 +291,15 @@
                         
                         {# Inline department form - initially hidden #}
                         <div class="inline-department-form" id="department-form-{{ location.id }}" style="display: none;">
-                            <form method="post" accept-charset="UTF-8" class="ajax-form" data-entry-type="department">
+                            <form method="post" accept-charset="UTF-8">
                                 {{ csrfInput() }}
                                 {{ actionInput('entries/save-entry') }}
+                                {{ redirectInput('settings') }}
                                 {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('locations').id) }}
                                 {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('locations').entryTypes[0].id) }}
                                 {{ hiddenInput('enabled', '1') }}
                                 {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
                                 {{ hiddenInput('parentId', location.id) }}
-                                {{ successMessageInput('Department has been added successfully!') }}
                                 
                                 <div class="field">
                                     <label for="department-title-{{ location.id }}">Department Name *</label>
