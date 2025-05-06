@@ -1,189 +1,306 @@
-<!DOCTYPE html>
-<html lang="en-US">
-<head>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta charset="utf-8" />
-    <title>Welcome to Craft CMS</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <meta name="referrer" content="origin-when-cross-origin" />
-    <style>
-        html,
-        body {
-            font-size: 16px;
-            -webkit-text-size-adjust: 100%;
-            height: 100%;
-            font-family: system-ui, BlinkMacSystemFont, -apple-system, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-        }
+{% extends "_layout" %}
 
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: hsl(212, 60%, 97%);
-            color: hsl(209, 18%, 30%);
-            display: flex;
-        }
-
-        h1 {
-            margin-top: 0;
-        }
-
-        h2 {
-            margin-top: 24px;
-            font-size: 1em;
-        }
-
-        h2:first-child {
-            margin-top: 0;
-        }
-
-        p {
-            line-height: 1.4em;
-            margin-bottom: 1.4em;
-        }
-
-        ul {
-            line-height: 1.3em;
-            padding-left: 20px;
-            margin-bottom: 0;
-        }
-
-        ul li {
-            margin-bottom: 0.35em;
-        }
-
-        a {
-            color: #0B69A3;
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-        .go {
-            color: #0B69A3;
-        }
-
-        .go:after {
-            padding-left: 4px;
-            content: '→';
-            text-decoration: none !important;
-        }
-
-        small {
-            color: hsl(211, 11%, 59%);
-        }
-
-        code {
-            display: inline-block;
-            color: #EF4E4E;
-            padding: 0 2px;
-            background: hsl(212, 60%, 97%);
-            border-radius: 3px;
-            line-height: 1.3;
-            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
-            font-size: 0.9em;
-        }
-
-        #container {
-            flex-grow: 1;
-        }
-
-        #modal {
-            background: #fff;
-        }
-
-        #aside {
-            background: hsl(212, 60%, 97%);
-        }
-
-        .content {
-            padding: 35px;
-            padding-left: calc(35px + env(safe-area-inset-left));
-            padding-right: calc(35px + env(safe-area-inset-right));
-        }
-
-        @media (min-width:768px) {
-            #modal {
-                display: flex;
-            }
-
-            #main {
-                width: 50%;
-                overflow: auto;
-            }
-
-            #aside {
-                width: 50%;
-                overflow: auto;
-            }
-        }
-
-        @media (min-width:768px) and (min-height: 376px) {
-            body {
-                background-color: hsl(212, 50%, 93%);
-                background-image: url("{{ view.getAssetManager().getPublishedUrl('@app/web/assets/installer/dist', true, 'images/installer-bg.png') }}");
-                background-repeat: no-repeat;
-                background-size: cover;
-                background-position: center center;
-            }
-
-            #container {
-                display: flex;
-                padding: 24px;
-                align-items: center;
-                justify-content: center;
-            }
-
-            #modal {
-                height: 100%;
-                max-width: 800px;
-                max-height: 525px;
-                border-radius: 4px;
-                overflow: auto;
-                box-shadow: 0 25px 100px rgba(0, 0, 0, 0.5);
-            }
-
-            #aside {
-                overflow: auto;
-            }
-        }
-
-    </style>
-</head>
-<body class="ltr">
-<div id="container">
-    <div id="modal">
-        <div id="main">
-            <div class="content">
-                <h1>Welcome</h1>
-                <p>Welcome to Porter Craft, a tool for managing porters and supervisors.</p>
-                <p>With this application, you can:</p>
-                <ul>
-                    <li>Add and manage porters with first name and surname</li>
-                    <li>Add and manage supervisors with first name and surname</li>
-                </ul>
-                <p><span class="go"><a href="{{ siteUrl('settings') }}">Go to Settings</a></span></p>
-                <p><span class="go"><a href="{{ siteUrl('staff') }}">Go to Staff Management</a></span></p>
-                <p><span class="go"><a href="{{ cpUrl('') }}">Go to Control Panel</a></span></p>
+{% block content %}
+    <div class="dashboard-welcome">
+        <div class="dashboard-header">
+            <div class="welcome-card">
+                <div class="welcome-content">
+                    <h1>
+                        <i class="bi bi-buildings-fill"></i> 
+                        Porter Management System
+                    </h1>
+                    <p class="welcome-description">
+                        Welcome to the Porter Management System, a comprehensive tool for managing porters and supervisors across multiple locations.
+                    </p>
+                    
+                    <div class="welcome-actions">
+                        <a href="{{ siteUrl('settings') }}" class="btn primary">
+                            <i class="bi bi-gear-fill"></i> Settings
+                        </a>
+                        <a href="{{ siteUrl('staff') }}" class="btn">
+                            <i class="bi bi-people-fill"></i> Staff Management
+                        </a>
+                        {% if currentUser and currentUser.can('accessCp') %}
+                            <a href="{{ cpUrl('') }}" class="btn secondary">
+                                <i class="bi bi-brush"></i> Craft CMS Admin
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="welcome-image">
+                    <i class="bi bi-buildings"></i>
+                </div>
             </div>
         </div>
-        <div id="aside">
-            <div class="content">
-                <h2>Popular Resources</h2>
-                <ul>
-                    <li><a href="https://craftcms.com/docs/getting-started-tutorial/" target="_blank">Tutorial</a><br><small>Learn the basics.</small></li>
-                    <li><a href="https://craftcms.com/docs/5.x/" target="_blank">Documentation</a><br><small>Read the official docs.</small></li>
-                    <li><a href="https://craftcms.com/guides" target="_blank">Knowledge Base</a><br><small>Find answers to common problems.</small></li>
-                    <li><a href="https://craftcms.com/newsletter/subscribe" target="_blank">Newsletter</a><br><small>Get official news and community updates.</small></li>
-                    <li><a href="https://craftcms.com/events" target="_blank">Events</a><br><small>Upcoming community events.</small></li>
-                    <li><a href="https://craftcms.com/discord" target="_blank">Discord</a><br><small>Meet the community.</small></li>
-                    <li><a href="http://craftcms.stackexchange.com/" target="_blank">Stack Exchange</a><br><small>Get help and help others.</small></li>
-                    <li><a href="https://craftquest.io/" target="_blank">CraftQuest</a><br><small>Watch unlimited video lessons and courses.</small></li>
-                </ul>
+
+        <div class="dashboard-sections">
+            <div class="dashboard-section-grid">
+                <!-- Staff Section -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <i class="bi bi-people-fill"></i>
+                        <h2>Staff Management</h2>
+                    </div>
+                    <div class="card-content">
+                        <p>Manage porters and supervisors with easy-to-use forms.</p>
+                        <ul class="feature-list">
+                            <li><i class="bi bi-check-circle-fill"></i> Add and manage porters</li>
+                            <li><i class="bi bi-check-circle-fill"></i> Add and manage supervisors</li>
+                            <li><i class="bi bi-check-circle-fill"></i> Assign porters to departments</li>
+                        </ul>
+                        <div class="card-actions">
+                            <a href="{{ siteUrl('staff') }}" class="btn">Go to Staff Management</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Locations Section -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <i class="bi bi-building"></i>
+                        <h2>Locations</h2>
+                    </div>
+                    <div class="card-content">
+                        <p>Organize your buildings and departments efficiently.</p>
+                        <ul class="feature-list">
+                            <li><i class="bi bi-check-circle-fill"></i> Create and manage buildings</li>
+                            <li><i class="bi bi-check-circle-fill"></i> Add departments to buildings</li>
+                            <li><i class="bi bi-check-circle-fill"></i> Hierarchical location structure</li>
+                        </ul>
+                        <div class="card-actions">
+                            <a href="{{ siteUrl('settings') }}#buildings-departments" class="btn">Manage Locations</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tasks Section (Coming Soon) -->
+                <div class="dashboard-card coming-soon">
+                    <div class="card-header">
+                        <i class="bi bi-list-check"></i>
+                        <h2>Task Management</h2>
+                        <span class="badge">Coming Soon</span>
+                    </div>
+                    <div class="card-content">
+                        <p>Task management features will be available in a future update.</p>
+                        <ul class="feature-list">
+                            <li><i class="bi bi-hourglass-split"></i> Create different task types</li>
+                            <li><i class="bi bi-hourglass-split"></i> Assign tasks to porters</li>
+                            <li><i class="bi bi-hourglass-split"></i> Track task completion</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
-</body>
-</html>
+
+    <style>
+        /* Dashboard Styles */
+        .dashboard-welcome {
+            margin-bottom: 3rem;
+        }
+
+        .dashboard-header {
+            margin-bottom: 2rem;
+        }
+
+        .welcome-card {
+            background: linear-gradient(135deg, var(--primary) 0%, #1a56db 100%);
+            color: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .welcome-content {
+            padding: 2.5rem;
+            flex: 3;
+            z-index: 1;
+        }
+
+        .welcome-image {
+            flex: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8rem;
+            opacity: 0.2;
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 40%;
+        }
+
+        .welcome-card h1 {
+            color: white;
+            margin-bottom: 1rem;
+            font-size: 2rem;
+            border: none;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .welcome-description {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.9;
+            max-width: 80%;
+        }
+
+        .welcome-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .welcome-actions .btn {
+            backdrop-filter: blur(4px);
+            background-color: rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .welcome-actions .btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .welcome-actions .btn.primary {
+            background-color: white;
+            color: var(--primary);
+        }
+
+        .welcome-actions .btn.primary:hover {
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Dashboard Sections */
+        .dashboard-sections {
+            margin-top: 3rem;
+        }
+
+        .dashboard-section-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .dashboard-card {
+            background-color: var(--background);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border);
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            background-color: var(--light);
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            position: relative;
+        }
+
+        .card-header i {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .card-header h2 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .card-content {
+            padding: 1.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0;
+            flex-grow: 1;
+        }
+
+        .feature-list li {
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .feature-list i {
+            color: var(--success);
+            font-size: 1rem;
+        }
+
+        .coming-soon .feature-list i {
+            color: var(--warning);
+        }
+
+        .card-actions {
+            margin-top: auto;
+            padding-top: 1rem;
+        }
+
+        .badge {
+            position: absolute;
+            right: 1.25rem;
+            top: 1.25rem;
+            background-color: var(--warning);
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 2rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .coming-soon {
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .welcome-image {
+                display: none;
+            }
+            
+            .welcome-description {
+                max-width: 100%;
+            }
+            
+            .welcome-content {
+                padding: 1.5rem;
+            }
+            
+            .welcome-card h1 {
+                font-size: 1.6rem;
+            }
+            
+            .dashboard-section-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+{% endblock %}
