@@ -160,6 +160,7 @@ function initVueApps() {
                 activeBuildingId: null,
                 departmentName: '',
                 editingBuildingId: null,
+                editingBuildingName: '',
                 editingDepartmentId: null
             }
         },
@@ -253,8 +254,9 @@ function initVueApps() {
                 });
             },
             
-            startBuildingEdit(id) {
+            startBuildingEdit(id, name) {
                 this.editingBuildingId = id;
+                this.editingBuildingName = name;
             },
             
             cancelBuildingEdit() {

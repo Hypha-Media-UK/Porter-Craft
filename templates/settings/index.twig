@@ -279,9 +279,26 @@
                 {% for location in rootLocations %}
                     <div class="location-item level-1" id="location-{{ location.id }}">
                         <div class="location-header">
-                            <span class="location-title">{{ location.title }}</span>
+                            <span class="location-title" v-if="editingBuildingId !== {{ location.id }}">{{ location.title }}</span>
+                            <div class="building-edit-form" v-if="editingBuildingId === {{ location.id }}">
+                                <form method="post" accept-charset="UTF-8" @submit.prevent="submitBuildingEdit($event, {{ location.id }})">
+                                    {{ csrfInput() }}
+                                    {{ actionInput('guest-entries/save') }}
+                                    {{ hiddenInput('sectionHandle', 'locations') }}
+                                    {{ hiddenInput('enabled', '1') }}
+                                    {{ hiddenInput('id', location.id) }}
+                                    
+                                    <div class="inline-edit-field">
+                                        <input type="text" name="title" required value="{{ location.title }}" v-model="editingBuildingName" class="form-control">
+                                        <div class="inline-edit-actions">
+                                            <button type="submit" class="btn small success">Save</button>
+                                            <button type="button" class="btn small cancel-btn" @click="cancelBuildingEdit()">Cancel</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
                             <div class="location-actions">
-                                <a href="{{ location.cpEditUrl }}" class="btn small">Edit</a>
+                                <button class="btn small edit-building-btn" data-id="{{ location.id }}" @click="startBuildingEdit({{ location.id }}, '{{ location.title }}')">Edit</button>
                                 <button class="btn small add-department-btn" data-parent-id="{{ location.id }}">
                                     <i class="bi bi-plus-circle"></i> Add Department
                                 </button>
@@ -331,9 +348,27 @@
                                 {% for child in childLocations %}
                                     <div class="location-item level-2">
                                         <div class="location-header">
-                                            <span class="location-title">{{ child.title }}</span>
+                                            <span class="location-title" v-if="editingDepartmentId !== {{ child.id }}">{{ child.title }}</span>
+                                            <div class="department-edit-form" v-if="editingDepartmentId === {{ child.id }}">
+                                                <form method="post" accept-charset="UTF-8" @submit.prevent="submitDepartmentEdit($event, {{ child.id }})">
+                                                    {{ csrfInput() }}
+                                                    {{ actionInput('guest-entries/save') }}
+                                                    {{ hiddenInput('sectionHandle', 'locations') }}
+                                                    {{ hiddenInput('enabled', '1') }}
+                                                    {{ hiddenInput('id', child.id) }}
+                                                    {{ hiddenInput('parentId', location.id) }}
+                                                    
+                                                    <div class="inline-edit-field">
+                                                        <input type="text" name="title" required value="{{ child.title }}" class="form-control">
+                                                        <div class="inline-edit-actions">
+                                                            <button type="submit" class="btn small success">Save</button>
+                                                            <button type="button" class="btn small cancel-btn" @click="cancelDepartmentEdit()">Cancel</button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
                                             <div class="location-actions">
-                                                <a href="{{ child.cpEditUrl }}" class="btn small">Edit</a>
+                                                <button class="btn small edit-department-btn" data-id="{{ child.id }}" @click="startDepartmentEdit({{ child.id }})">Edit</button>
                                             </div>
                                         </div>
                                     </div>
@@ -744,10 +779,216 @@
         .btn.success:hover {
             background-color: #0ca678;
         }
+        
+        /* Inline edit styling */
+        .inline-edit-field {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .inline-edit-field input {
+            flex: 1;
+            padding: 0.5rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+        
+        .inline-edit-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .building-edit-form, .department-edit-form {
+            width: 100%;
+        }
+        
+        .notification.success {
+            margin-top: 0.75rem;
+            padding: 0.5rem 1rem;
+            background-color: #d4edda;
+            color: #155724;
+            border-radius: var(--radius);
+            border-left: 4px solid var(--success);
+        }
     </style>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Mount Vue apps
+            const locationsApp = Vue.createApp({
+                data() {
+                    return {
+                        activeBuildingId: null,
+                        departmentName: '',
+                        editingBuildingId: null,
+                        editingBuildingName: '',
+                        editingDepartmentId: null
+                    }
+                },
+                methods: {
+                    startBuildingEdit(id, name) {
+                        this.editingBuildingId = id;
+                        this.editingBuildingName = name;
+                        this.editingDepartmentId = null;
+                    },
+                    cancelBuildingEdit() {
+                        this.editingBuildingId = null;
+                    },
+                    startDepartmentEdit(id) {
+                        this.editingDepartmentId = id;
+                        this.editingBuildingId = null;
+                    },
+                    cancelDepartmentEdit() {
+                        this.editingDepartmentId = null;
+                    },
+                    submitDepartmentEdit(e, id) {
+                        const formData = new FormData(e.target);
+                        
+                        // Show loading state
+                        const submitBtn = e.target.querySelector('button[type="submit"]');
+                        const originalText = submitBtn.textContent;
+                        submitBtn.textContent = 'Saving...';
+                        submitBtn.disabled = true;
+                        
+                        // Ensure CSRF token is included
+                        if (!formData.has('CRAFT_CSRF_TOKEN')) {
+                            const csrfTokenElement = document.querySelector('input[name="CRAFT_CSRF_TOKEN"]');
+                            if (csrfTokenElement) {
+                                formData.append('CRAFT_CSRF_TOKEN', csrfTokenElement.value);
+                            }
+                        }
+                        
+                        // Ensure proper action is set
+                        if (!formData.has('action')) {
+                            formData.append('action', 'guest-entries/save');
+                        }
+                        
+                        fetch('', {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                return response.text().then(html => {
+                                    // Try to extract error message from response
+                                    try {
+                                        const jsonResponse = JSON.parse(html);
+                                        if (jsonResponse.error) {
+                                            throw new Error(jsonResponse.error);
+                                        }
+                                    } catch (e) {
+                                        // If it's not JSON or doesn't have an error property
+                                        console.error("Response:", html);
+                                        throw new Error('Submission failed');
+                                    }
+                                });
+                            }
+                            return response.text();
+                        })
+                        .then(html => {
+                            // Show success notification
+                            const notification = document.createElement('div');
+                            notification.className = 'notification success';
+                            notification.textContent = 'Department has been updated successfully!';
+                            
+                            // Insert notification
+                            const formParent = e.target.closest('.department-edit-form');
+                            formParent.appendChild(notification);
+                            
+                            // Reset edit state
+                            setTimeout(() => {
+                                this.cancelDepartmentEdit();
+                                location.reload(); // Refresh to show updated data
+                            }, 1500);
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('There was an error updating the department. Please try again.');
+                            
+                            // Reset button state
+                            submitBtn.textContent = originalText;
+                            submitBtn.disabled = false;
+                        });
+                    },
+                    submitBuildingEdit(e, id) {
+                        const formData = new FormData(e.target);
+                        
+                        // Show loading state
+                        const submitBtn = e.target.querySelector('button[type="submit"]');
+                        const originalText = submitBtn.textContent;
+                        submitBtn.textContent = 'Saving...';
+                        submitBtn.disabled = true;
+                        
+                        // Ensure CSRF token is included
+                        if (!formData.has('CRAFT_CSRF_TOKEN')) {
+                            const csrfTokenElement = document.querySelector('input[name="CRAFT_CSRF_TOKEN"]');
+                            if (csrfTokenElement) {
+                                formData.append('CRAFT_CSRF_TOKEN', csrfTokenElement.value);
+                            }
+                        }
+                        
+                        // Ensure proper action is set
+                        if (!formData.has('action')) {
+                            formData.append('action', 'guest-entries/save');
+                        }
+                        
+                        fetch('', {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                return response.text().then(html => {
+                                    // Try to extract error message from response
+                                    try {
+                                        const jsonResponse = JSON.parse(html);
+                                        if (jsonResponse.error) {
+                                            throw new Error(jsonResponse.error);
+                                        }
+                                    } catch (e) {
+                                        // If it's not JSON or doesn't have an error property
+                                        console.error("Response:", html);
+                                        throw new Error('Submission failed');
+                                    }
+                                });
+                            }
+                            return response.text();
+                        })
+                        .then(html => {
+                            // Show success notification
+                            const notification = document.createElement('div');
+                            notification.className = 'notification success';
+                            notification.textContent = 'Building has been updated successfully!';
+                            
+                            // Insert notification
+                            const formParent = e.target.closest('.building-edit-form');
+                            formParent.appendChild(notification);
+                            
+                            // Reset edit state
+                            setTimeout(() => {
+                                this.cancelBuildingEdit();
+                                location.reload(); // Refresh to show updated data
+                            }, 1500);
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('There was an error updating the building. Please try again.');
+                            
+                            // Reset button state
+                            submitBtn.textContent = originalText;
+                            submitBtn.disabled = false;
+                        });
+                    }
+                }
+            }).mount('.locations-tree');
+
             // Main tab navigation with button elements
             const tabButtons = document.querySelectorAll('.tab-button');
             
