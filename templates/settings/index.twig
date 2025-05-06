@@ -91,10 +91,9 @@
                                 
                                 <form method="post" accept-charset="UTF-8">
                                     {{ csrfInput() }}
-                                    {{ actionInput('entries/save-entry') }}
+                                    {{ actionInput('guest-entries/save') }}
                                     {{ redirectInput('settings') }}
-                                    {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('supervisors').id) }}
-                                    {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('supervisors').entryTypes[0].id) }}
+                                    {{ hiddenInput('sectionHandle', 'supervisors') }}
                                     {{ hiddenInput('enabled', '1') }}
                                     {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
                                     
@@ -175,10 +174,9 @@
                                 
                                 <form method="post" accept-charset="UTF-8">
                                     {{ csrfInput() }}
-                                    {{ actionInput('entries/save-entry') }}
+                                    {{ actionInput('guest-entries/save') }}
                                     {{ redirectInput('settings') }}
-                                    {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('porters').id) }}
-                                    {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('porters').entryTypes[0].id) }}
+                                    {{ hiddenInput('sectionHandle', 'porters') }}
                                     {{ hiddenInput('enabled', '1') }}
                                     {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
                                     
@@ -239,9 +237,12 @@
 
         {% set entry = entry is defined ? entry : craft.entries.section('locations').one() ?? create('craft\\elements\\Entry') %}
         
-        <form method="post" action="{{ url('entries/save-entry') }}">
+        <form method="post" accept-charset="UTF-8">
             {{ csrfInput() }}
+            {{ actionInput('elements/save') }}
             {{ redirectInput('settings') }}
+            {{ hiddenInput('elementType', 'craft\\elements\\Entry') }}
+            {{ hiddenInput('siteId', craft.app.sites.primarySite.id) }}
             {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('locations').id) }}
             {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('locations').entryTypes[0].id) }}
             {{ hiddenInput('enabled', '1') }}
@@ -292,9 +293,12 @@
                         
                         {# Inline department form - initially hidden #}
                         <div class="inline-department-form" id="department-form-{{ location.id }}" style="display: none;">
-                            <form method="post" action="{{ url('entries/save-entry') }}">
+                            <form method="post" accept-charset="UTF-8">
                                 {{ csrfInput() }}
+                                {{ actionInput('elements/save') }}
                                 {{ redirectInput('settings') }}
+                                {{ hiddenInput('elementType', 'craft\\elements\\Entry') }}
+                                {{ hiddenInput('siteId', craft.app.sites.primarySite.id) }}
                                 {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('locations').id) }}
                                 {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('locations').entryTypes[0].id) }}
                                 {{ hiddenInput('enabled', '1') }}

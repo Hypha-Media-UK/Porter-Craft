@@ -1,15 +1,24 @@
 <?php return array(
     'root' => array(
-        'name' => 'craftcms/craft',
-        'pretty_version' => '1.0.0+no-version-set',
-        'version' => '1.0.0.0',
-        'reference' => null,
-        'type' => 'project',
+        'name' => '__root__',
+        'pretty_version' => 'dev-main',
+        'version' => 'dev-main',
+        'reference' => '0bffb7110a17b7c28efa0ded6be882da2268ccd0',
+        'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
         'dev' => true,
     ),
     'versions' => array(
+        '__root__' => array(
+            'pretty_version' => 'dev-main',
+            'version' => 'dev-main',
+            'reference' => '0bffb7110a17b7c28efa0ded6be882da2268ccd0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../../',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'bacon/bacon-qr-code' => array(
             'pretty_version' => '2.0.8',
             'version' => '2.0.8.0',
@@ -88,15 +97,6 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
-        'craftcms/craft' => array(
-            'pretty_version' => '1.0.0+no-version-set',
-            'version' => '1.0.0.0',
-            'reference' => null,
-            'type' => 'project',
-            'install_path' => __DIR__ . '/../../',
-            'aliases' => array(),
-            'dev_requirement' => false,
-        ),
         'craftcms/generator' => array(
             'pretty_version' => '2.1.0',
             'version' => '2.1.0.0',
@@ -105,6 +105,15 @@
             'install_path' => __DIR__ . '/../craftcms/generator',
             'aliases' => array(),
             'dev_requirement' => true,
+        ),
+        'craftcms/guest-entries' => array(
+            'pretty_version' => '4.0.1',
+            'version' => '4.0.1.0',
+            'reference' => 'f0b94fa28efb7d24e8d80ee278584653759c05d2',
+            'type' => 'craft-plugin',
+            'install_path' => __DIR__ . '/../craftcms/guest-entries',
+            'aliases' => array(),
+            'dev_requirement' => false,
         ),
         'craftcms/plugin-installer' => array(
             'pretty_version' => '1.6.0',

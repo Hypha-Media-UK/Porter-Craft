@@ -13,10 +13,9 @@
     
     <form method="post" accept-charset="UTF-8">
         {{ csrfInput() }}
-        {{ actionInput('entries/save-entry') }}
+        {{ actionInput('guest-entries/save') }}
         {{ redirectInput(siteUrl('settings/buildings-departments')) }}
-        {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('locations').id) }}
-        {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('locations').entryTypes[0].id) }}
+        {{ hiddenInput('sectionHandle', 'locations') }}
         {{ hiddenInput('enabled', '1') }}
         {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
         
@@ -53,9 +52,11 @@
                     <div class="location-header">
                         <span v-if="editingBuildingId === {{ location.id }}" class="location-title-edit">
                             <form @submit.prevent="submitBuildingEdit($event, {{ location.id }})">
+                                {{ actionInput('elements/save') }}
+                                {{ hiddenInput('elementType', 'craft\\elements\\Entry') }}
+                                {{ hiddenInput('siteId', craft.app.sites.primarySite.id) }}
                                 {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('locations').id) }}
                                 {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('locations').entryTypes[0].id) }}
-                                {{ actionInput('entries/save-entry') }}
                                 {{ hiddenInput('enabled', '1') }}
                                 {{ hiddenInput('id', location.id) }}
                                 
@@ -79,16 +80,17 @@
                     <div class="inline-department-form" v-if="activeBuildingId === {{ location.id }}">
                         <form method="post" accept-charset="UTF-8" @submit.prevent="submitChildForm($event, {{ location.id }})">
                             {{ csrfInput() }}
-                            {{ actionInput('entries/save-entry') }}
+                            {{ actionInput('elements/save') }}
                             {{ redirectInput(siteUrl('settings/buildings-departments')) }}
+                            {{ hiddenInput('elementType', 'craft\\elements\\Entry') }}
+                            {{ hiddenInput('siteId', craft.app.sites.primarySite.id) }}
                             {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('locations').id) }}
                             {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('locations').entryTypes[1].id) }}
                             {{ hiddenInput('enabled', '1') }}
                             {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
                             
                             {# Critical: This establishes the parent-child relationship in the Structure section #}
-                            {# In Craft CMS, the parentId parameter is used for Structure sections to establish hierarchy #}
-                            <input type="hidden" name="parentId" :value="activeBuildingId">
+                            {{ hiddenInput('parentId', null, {':value': 'activeBuildingId'}) }}
                             
                             <div class="field">
                                 <label for="department-title-${location.id}">Department Name *</label>
@@ -116,9 +118,11 @@
                                     <div class="location-header">
                                         <span v-if="editingDepartmentId === {{ child.id }}" class="location-title-edit">
                                             <form @submit.prevent="submitDepartmentEdit($event, {{ child.id }})">
+                                                {{ actionInput('elements/save') }}
+                                                {{ hiddenInput('elementType', 'craft\\elements\\Entry') }}
+                                                {{ hiddenInput('siteId', craft.app.sites.primarySite.id) }}
                                                 {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('locations').id) }}
                                                 {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('locations').entryTypes[1].id) }}
-                                                {{ actionInput('entries/save-entry') }}
                                                 {{ hiddenInput('enabled', '1') }}
                                                 {{ hiddenInput('id', child.id) }}
                                                 {{ hiddenInput('parentId', location.id) }}

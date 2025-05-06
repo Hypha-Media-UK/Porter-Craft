@@ -78,13 +78,50 @@ function initVueApps() {
                 submitBtn.textContent = 'Saving...';
                 submitBtn.disabled = true;
                 
+                // Ensure CSRF token is included
+                if (!formData.has('CRAFT_CSRF_TOKEN')) {
+                    const csrfTokenElement = document.querySelector('input[name="CRAFT_CSRF_TOKEN"]');
+                    if (csrfTokenElement) {
+                        formData.append('CRAFT_CSRF_TOKEN', csrfTokenElement.value);
+                    }
+                }
+                
+                // Make sure elementType is set
+                if (!formData.has('elementType')) {
+                    formData.append('elementType', 'craft\\elements\\Entry');
+                }
+                
+                // Ensure siteId is set
+                if (!formData.has('siteId')) {
+                    // Try to find siteId in the document
+                    const siteIdElement = document.querySelector('input[name="siteId"]');
+                    if (siteIdElement) {
+                        formData.append('siteId', siteIdElement.value);
+                    }
+                }
+                
                 fetch('', {
                     method: 'POST',
                     body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
                 })
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error('Network response was not ok');
+                        return response.text().then(html => {
+                            // Try to extract error message from response
+                            try {
+                                const jsonResponse = JSON.parse(html);
+                                if (jsonResponse.error) {
+                                    throw new Error(jsonResponse.error);
+                                }
+                            } catch (e) {
+                                // If it's not JSON or doesn't have an error property
+                                console.error("Response:", html);
+                                throw new Error('Submission failed');
+                            }
+                        });
                     }
                     return response.text();
                 })
@@ -155,9 +192,34 @@ function initVueApps() {
                 submitBtn.textContent = 'Adding...';
                 submitBtn.disabled = true;
                 
+                // Ensure CSRF token is included
+                if (!formData.has('CRAFT_CSRF_TOKEN')) {
+                    const csrfTokenElement = document.querySelector('input[name="CRAFT_CSRF_TOKEN"]');
+                    if (csrfTokenElement) {
+                        formData.append('CRAFT_CSRF_TOKEN', csrfTokenElement.value);
+                    }
+                }
+                
+                // Make sure elementType is set
+                if (!formData.has('elementType')) {
+                    formData.append('elementType', 'craft\\elements\\Entry');
+                }
+                
+                // Ensure siteId is set
+                if (!formData.has('siteId')) {
+                    // Try to find siteId in the document
+                    const siteIdElement = document.querySelector('input[name="siteId"]');
+                    if (siteIdElement) {
+                        formData.append('siteId', siteIdElement.value);
+                    }
+                }
+                
                 fetch('', {
                     method: 'POST',
                     body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
                 })
                 .then(response => {
                     if (!response.ok) {
@@ -208,9 +270,25 @@ function initVueApps() {
                 submitBtn.textContent = 'Saving...';
                 submitBtn.disabled = true;
                 
+                // Ensure CSRF token is included
+                if (!formData.has('CRAFT_CSRF_TOKEN')) {
+                    const csrfTokenElement = document.querySelector('input[name="CRAFT_CSRF_TOKEN"]');
+                    if (csrfTokenElement) {
+                        formData.append('CRAFT_CSRF_TOKEN', csrfTokenElement.value);
+                    }
+                }
+                
+                // Ensure proper action is set
+                if (!formData.has('action')) {
+                    formData.append('action', 'guest-entries/save');
+                }
+                
                 fetch('', {
                     method: 'POST',
                     body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
                 })
                 .then(response => {
                     if (!response.ok) {
@@ -261,9 +339,25 @@ function initVueApps() {
                 submitBtn.textContent = 'Saving...';
                 submitBtn.disabled = true;
                 
+                // Ensure CSRF token is included
+                if (!formData.has('CRAFT_CSRF_TOKEN')) {
+                    const csrfTokenElement = document.querySelector('input[name="CRAFT_CSRF_TOKEN"]');
+                    if (csrfTokenElement) {
+                        formData.append('CRAFT_CSRF_TOKEN', csrfTokenElement.value);
+                    }
+                }
+                
+                // Ensure proper action is set
+                if (!formData.has('action')) {
+                    formData.append('action', 'guest-entries/save');
+                }
+                
                 fetch('', {
                     method: 'POST',
                     body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
                 })
                 .then(response => {
                     if (!response.ok) {
@@ -338,9 +432,25 @@ function initVueApps() {
                 submitBtn.textContent = 'Adding...';
                 submitBtn.disabled = true;
                 
+                // Ensure CSRF token is included
+                if (!formData.has('CRAFT_CSRF_TOKEN')) {
+                    const csrfTokenElement = document.querySelector('input[name="CRAFT_CSRF_TOKEN"]');
+                    if (csrfTokenElement) {
+                        formData.append('CRAFT_CSRF_TOKEN', csrfTokenElement.value);
+                    }
+                }
+                
+                // Ensure proper action is set
+                if (!formData.has('action')) {
+                    formData.append('action', 'guest-entries/save');
+                }
+                
                 fetch('', {
                     method: 'POST',
                     body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
                 })
                 .then(response => {
                     if (!response.ok) {
@@ -391,9 +501,25 @@ function initVueApps() {
                 submitBtn.textContent = 'Saving...';
                 submitBtn.disabled = true;
                 
+                // Ensure CSRF token is included
+                if (!formData.has('CRAFT_CSRF_TOKEN')) {
+                    const csrfTokenElement = document.querySelector('input[name="CRAFT_CSRF_TOKEN"]');
+                    if (csrfTokenElement) {
+                        formData.append('CRAFT_CSRF_TOKEN', csrfTokenElement.value);
+                    }
+                }
+                
+                // Ensure proper action is set
+                if (!formData.has('action')) {
+                    formData.append('action', 'guest-entries/save');
+                }
+                
                 fetch('', {
                     method: 'POST',
                     body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
                 })
                 .then(response => {
                     if (!response.ok) {
@@ -444,9 +570,25 @@ function initVueApps() {
                 submitBtn.textContent = 'Saving...';
                 submitBtn.disabled = true;
                 
+                // Ensure CSRF token is included
+                if (!formData.has('CRAFT_CSRF_TOKEN')) {
+                    const csrfTokenElement = document.querySelector('input[name="CRAFT_CSRF_TOKEN"]');
+                    if (csrfTokenElement) {
+                        formData.append('CRAFT_CSRF_TOKEN', csrfTokenElement.value);
+                    }
+                }
+                
+                // Ensure proper action is set
+                if (!formData.has('action')) {
+                    formData.append('action', 'guest-entries/save');
+                }
+                
                 fetch('', {
                     method: 'POST',
                     body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
                 })
                 .then(response => {
                     if (!response.ok) {

@@ -80,6 +80,7 @@ class ComposerStaticInit0bf13ad21b51e65cbc0d53dd656465a8
         'c' => 
         array (
             'creocoder\\nestedsets\\' => 21,
+            'craft\\guestentries\\' => 19,
             'craft\\generator\\' => 16,
             'craft\\composer\\' => 15,
             'craft\\' => 6,
@@ -312,6 +313,10 @@ class ComposerStaticInit0bf13ad21b51e65cbc0d53dd656465a8
         'creocoder\\nestedsets\\' => 
         array (
             0 => __DIR__ . '/..' . '/creocoder/yii2-nested-sets/src',
+        ),
+        'craft\\guestentries\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/craftcms/guest-entries/src',
         ),
         'craft\\generator\\' => 
         array (
@@ -5261,6 +5266,13 @@ class ComposerStaticInit0bf13ad21b51e65cbc0d53dd656465a8
         'craft\\gql\\types\\input\\criteria\\TagRelation' => __DIR__ . '/..' . '/craftcms/cms/src/gql/types/input/criteria/TagRelation.php',
         'craft\\gql\\types\\input\\criteria\\User' => __DIR__ . '/..' . '/craftcms/cms/src/gql/types/input/criteria/User.php',
         'craft\\gql\\types\\input\\criteria\\UserRelation' => __DIR__ . '/..' . '/craftcms/cms/src/gql/types/input/criteria/UserRelation.php',
+        'craft\\guestentries\\Plugin' => __DIR__ . '/..' . '/craftcms/guest-entries/src/Plugin.php',
+        'craft\\guestentries\\controllers\\SaveController' => __DIR__ . '/..' . '/craftcms/guest-entries/src/controllers/SaveController.php',
+        'craft\\guestentries\\events\\SaveEvent' => __DIR__ . '/..' . '/craftcms/guest-entries/src/events/SaveEvent.php',
+        'craft\\guestentries\\migrations\\m170710_200301_tweak_settings' => __DIR__ . '/..' . '/craftcms/guest-entries/src/migrations/m170710_200301_tweak_settings.php',
+        'craft\\guestentries\\migrations\\m181105_160000_craft_31_compatibility' => __DIR__ . '/..' . '/craftcms/guest-entries/src/migrations/m181105_160000_craft_31_compatibility.php',
+        'craft\\guestentries\\models\\SectionSettings' => __DIR__ . '/..' . '/craftcms/guest-entries/src/models/SectionSettings.php',
+        'craft\\guestentries\\models\\Settings' => __DIR__ . '/..' . '/craftcms/guest-entries/src/models/Settings.php',
         'craft\\helpers\\AdminTable' => __DIR__ . '/..' . '/craftcms/cms/src/helpers/AdminTable.php',
         'craft\\helpers\\Api' => __DIR__ . '/..' . '/craftcms/cms/src/helpers/Api.php',
         'craft\\helpers\\App' => __DIR__ . '/..' . '/craftcms/cms/src/helpers/App.php',

@@ -29,10 +29,9 @@
             
             <form method="post" accept-charset="UTF-8">
                 {{ csrfInput() }}
-                {{ actionInput('entries/save-entry') }}
+                {{ actionInput('guest-entries/save') }}
                 {{ redirectInput(siteUrl('settings?staffType=supervisor')) }}
-                {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('supervisors').id) }}
-                {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('supervisors').entryTypes[0].id) }}
+                {{ hiddenInput('sectionHandle', 'supervisors') }}
                 {{ hiddenInput('enabled', '1') }}
                 {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
                 
@@ -81,9 +80,11 @@
                         <div class="staff-card">
                             <div v-if="editingSupervisorId === {{ supervisor.id }}" class="staff-card-edit-form">
                                 <form @submit.prevent="submitStaffEdit($event, {{ supervisor.id }}, 'supervisor')">
+                                    {{ actionInput('elements/save') }}
+                                    {{ hiddenInput('elementType', 'craft\\elements\\Entry') }}
+                                    {{ hiddenInput('siteId', craft.app.sites.primarySite.id) }}
                                     {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('supervisors').id) }}
                                     {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('supervisors').entryTypes[0].id) }}
-                                    {{ actionInput('entries/save-entry') }}
                                     {{ hiddenInput('enabled', '1') }}
                                     {{ hiddenInput('id', supervisor.id) }}
                                     
@@ -139,10 +140,9 @@
             
             <form method="post" accept-charset="UTF-8">
                 {{ csrfInput() }}
-                {{ actionInput('entries/save-entry') }}
+                {{ actionInput('guest-entries/save') }}
                 {{ redirectInput(siteUrl('settings?staffType=porter')) }}
-                {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('porters').id) }}
-                {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('porters').entryTypes[0].id) }}
+                {{ hiddenInput('sectionHandle', 'porters') }}
                 {{ hiddenInput('enabled', '1') }}
                 {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
                 
@@ -191,9 +191,11 @@
                         <div class="staff-card">
                             <div v-if="editingPorterId === {{ porter.id }}" class="staff-card-edit-form">
                                 <form @submit.prevent="submitStaffEdit($event, {{ porter.id }}, 'porter')">
+                                    {{ actionInput('elements/save') }}
+                                    {{ hiddenInput('elementType', 'craft\\elements\\Entry') }}
+                                    {{ hiddenInput('siteId', craft.app.sites.primarySite.id) }}
                                     {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('porters').id) }}
                                     {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('porters').entryTypes[0].id) }}
-                                    {{ actionInput('entries/save-entry') }}
                                     {{ hiddenInput('enabled', '1') }}
                                     {{ hiddenInput('id', porter.id) }}
                                     

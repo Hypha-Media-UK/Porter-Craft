@@ -31,6 +31,7 @@ return array(
     'mikehaertl\\shellcommand\\' => array($vendorDir . '/mikehaertl/php-shellcommand/src'),
     'enshrined\\svgSanitize\\' => array($vendorDir . '/enshrined/svg-sanitize/src'),
     'creocoder\\nestedsets\\' => array($vendorDir . '/creocoder/yii2-nested-sets/src'),
+    'craft\\guestentries\\' => array($vendorDir . '/craftcms/guest-entries/src'),
     'craft\\generator\\' => array($vendorDir . '/craftcms/generator/src'),
     'craft\\composer\\' => array($vendorDir . '/craftcms/plugin-installer/src'),
     'craft\\' => array($vendorDir . '/craftcms/cms/src'),

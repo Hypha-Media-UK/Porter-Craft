@@ -531,6 +531,69 @@
             "install-path": "../craftcms/generator"
         },
         {
+            "name": "craftcms/guest-entries",
+            "version": "4.0.1",
+            "version_normalized": "4.0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/craftcms/guest-entries.git",
+                "reference": "f0b94fa28efb7d24e8d80ee278584653759c05d2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/craftcms/guest-entries/zipball/f0b94fa28efb7d24e8d80ee278584653759c05d2",
+                "reference": "f0b94fa28efb7d24e8d80ee278584653759c05d2",
+                "shasum": ""
+            },
+            "require": {
+                "craftcms/cms": "^4.0.0-RC3|^5.0.0-beta.1"
+            },
+            "require-dev": {
+                "craftcms/ecs": "dev-main",
+                "craftcms/phpstan": "dev-main",
+                "craftcms/rector": "dev-main"
+            },
+            "time": "2024-05-23T05:03:16+00:00",
+            "type": "craft-plugin",
+            "extra": {
+                "name": "Guest Entries",
+                "handle": "guest-entries",
+                "documentationUrl": "https://github.com/craftcms/guest-entries/blob/v2/README.md"
+            },
+            "installation-source": "dist",
+            "autoload": {
+                "psr-4": {
+                    "craft\\guestentries\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Pixel & Tonic",
+                    "homepage": "https://pixelandtonic.com/"
+                }
+            ],
+            "description": "This plugin allows you to save guest entries from the front-end of your website.",
+            "keywords": [
+                "cms",
+                "craftcms",
+                "entries",
+                "guest",
+                "yii2"
+            ],
+            "support": {
+                "docs": "https://github.com/craftcms/guest-entries/blob/v2/README.md",
+                "email": "support@craftcms.com",
+                "issues": "https://github.com/craftcms/guest-entries/issues?state=open",
+                "rss": "https://github.com/craftcms/guest-entries/commits/v2.atom",
+                "source": "https://github.com/craftcms/guest-entries"
+            },
+            "install-path": "../craftcms/guest-entries"
+        },
+        {
             "name": "craftcms/plugin-installer",
             "version": "1.6.0",
             "version_normalized": "1.6.0.0",

@@ -13,10 +13,9 @@
     
     <form method="post" accept-charset="UTF-8">
         {{ csrfInput() }}
-        {{ actionInput('entries/save-entry') }}
+        {{ actionInput('guest-entries/save') }}
         {{ redirectInput(siteUrl('settings/task-types')) }}
-        {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('taskCategories').id) }}
-        {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('taskCategories').entryTypes[0].id) }}
+        {{ hiddenInput('sectionHandle', 'taskCategories') }}
         {{ hiddenInput('enabled', '1') }}
         {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
         
@@ -53,9 +52,11 @@
                     <div class="category-header">
                         <span v-if="editingCategoryId === {{ category.id }}" class="category-title-edit">
                             <form @submit.prevent="submitCategoryEdit($event, {{ category.id }})">
+                                {{ actionInput('elements/save') }}
+                                {{ hiddenInput('elementType', 'craft\\elements\\Entry') }}
+                                {{ hiddenInput('siteId', craft.app.sites.primarySite.id) }}
                                 {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('taskCategories').id) }}
                                 {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('taskCategories').entryTypes[0].id) }}
-                                {{ actionInput('entries/save-entry') }}
                                 {{ hiddenInput('enabled', '1') }}
                                 {{ hiddenInput('id', category.id) }}
                                 
@@ -79,14 +80,13 @@
                     <div class="inline-subcategory-form" v-if="activeCategoryId === {{ category.id }}">
                         <form method="post" accept-charset="UTF-8" @submit.prevent="submitChildForm($event, {{ category.id }})">
                             {{ csrfInput() }}
-                            {{ actionInput('entries/save-entry') }}
-                            {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('taskCategories').id) }}
-                            {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('taskCategories').entryTypes[0].id) }}
+                            {{ actionInput('guest-entries/save') }}
+                            {{ hiddenInput('sectionHandle', 'taskCategories') }}
                             {{ hiddenInput('enabled', '1') }}
                             {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
                             
                             {# Critical: This establishes the parent-child relationship in the Structure section #}
-                            <input type="hidden" name="parentId" :value="activeCategoryId">
+                            {{ hiddenInput('parentId', null, {':value': 'activeCategoryId'}) }}
                             
                             <div class="field">
                                 <label for="subcategory-title-${category.id}">Subcategory Name *</label>
@@ -114,9 +114,11 @@
                                     <div class="category-header">
                                         <span v-if="editingSubcategoryId === {{ child.id }}" class="category-title-edit">
                                             <form @submit.prevent="submitSubcategoryEdit($event, {{ child.id }})">
+                                                {{ actionInput('elements/save') }}
+                                                {{ hiddenInput('elementType', 'craft\\elements\\Entry') }}
+                                                {{ hiddenInput('siteId', craft.app.sites.primarySite.id) }}
                                                 {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('taskCategories').id) }}
                                                 {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('taskCategories').entryTypes[0].id) }}
-                                                {{ actionInput('entries/save-entry') }}
                                                 {{ hiddenInput('enabled', '1') }}
                                                 {{ hiddenInput('id', child.id) }}
                                                 {{ hiddenInput('parentId', category.id) }}

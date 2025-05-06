@@ -1,0 +1,51 @@
+description: null
+handle: team
+name: Team
+permissions:
+  - administrateusers
+  - 'createentries:5f52388b-f9f4-4132-81c1-55802c67d8cc' # Locations
+  - 'createentries:69dbc207-8618-4a1c-8b63-1de6ba30badb' # Task Categories
+  - 'createentries:b1d95329-57ac-49cf-90d7-b40a1bdbcd01' # Porters
+  - 'createentries:f44b07d1-48b3-48fe-8bfe-f8f12f5ed053' # Supervisors
+  - 'deleteentries:5f52388b-f9f4-4132-81c1-55802c67d8cc' # Locations
+  - 'deleteentries:69dbc207-8618-4a1c-8b63-1de6ba30badb' # Task Categories
+  - 'deleteentries:b1d95329-57ac-49cf-90d7-b40a1bdbcd01' # Porters
+  - 'deleteentries:f44b07d1-48b3-48fe-8bfe-f8f12f5ed053' # Supervisors
+  - 'deletepeerentries:5f52388b-f9f4-4132-81c1-55802c67d8cc' # Locations
+  - 'deletepeerentries:69dbc207-8618-4a1c-8b63-1de6ba30badb' # Task Categories
+  - 'deletepeerentries:b1d95329-57ac-49cf-90d7-b40a1bdbcd01' # Porters
+  - 'deletepeerentries:f44b07d1-48b3-48fe-8bfe-f8f12f5ed053' # Supervisors
+  - 'deletepeerentrydrafts:5f52388b-f9f4-4132-81c1-55802c67d8cc' # Locations
+  - 'deletepeerentrydrafts:69dbc207-8618-4a1c-8b63-1de6ba30badb' # Task Categories
+  - 'deletepeerentrydrafts:b1d95329-57ac-49cf-90d7-b40a1bdbcd01' # Porters
+  - 'deletepeerentrydrafts:f44b07d1-48b3-48fe-8bfe-f8f12f5ed053' # Supervisors
+  - deleteusers
+  - editusers
+  - impersonateusers
+  - moderateusers
+  - registerusers
+  - 'saveentries:5f52388b-f9f4-4132-81c1-55802c67d8cc' # Locations
+  - 'saveentries:69dbc207-8618-4a1c-8b63-1de6ba30badb' # Task Categories
+  - 'saveentries:b1d95329-57ac-49cf-90d7-b40a1bdbcd01' # Porters
+  - 'saveentries:f44b07d1-48b3-48fe-8bfe-f8f12f5ed053' # Supervisors
+  - 'savepeerentries:5f52388b-f9f4-4132-81c1-55802c67d8cc' # Locations
+  - 'savepeerentries:69dbc207-8618-4a1c-8b63-1de6ba30badb' # Task Categories
+  - 'savepeerentries:b1d95329-57ac-49cf-90d7-b40a1bdbcd01' # Porters
+  - 'savepeerentries:f44b07d1-48b3-48fe-8bfe-f8f12f5ed053' # Supervisors
+  - 'savepeerentrydrafts:5f52388b-f9f4-4132-81c1-55802c67d8cc' # Locations
+  - 'savepeerentrydrafts:69dbc207-8618-4a1c-8b63-1de6ba30badb' # Task Categories
+  - 'savepeerentrydrafts:b1d95329-57ac-49cf-90d7-b40a1bdbcd01' # Porters
+  - 'savepeerentrydrafts:f44b07d1-48b3-48fe-8bfe-f8f12f5ed053' # Supervisors
+  - 'viewentries:5f52388b-f9f4-4132-81c1-55802c67d8cc' # Locations
+  - 'viewentries:69dbc207-8618-4a1c-8b63-1de6ba30badb' # Task Categories
+  - 'viewentries:b1d95329-57ac-49cf-90d7-b40a1bdbcd01' # Porters
+  - 'viewentries:f44b07d1-48b3-48fe-8bfe-f8f12f5ed053' # Supervisors
+  - 'viewpeerentries:5f52388b-f9f4-4132-81c1-55802c67d8cc' # Locations
+  - 'viewpeerentries:69dbc207-8618-4a1c-8b63-1de6ba30badb' # Task Categories
+  - 'viewpeerentries:b1d95329-57ac-49cf-90d7-b40a1bdbcd01' # Porters
+  - 'viewpeerentries:f44b07d1-48b3-48fe-8bfe-f8f12f5ed053' # Supervisors
+  - 'viewpeerentrydrafts:5f52388b-f9f4-4132-81c1-55802c67d8cc' # Locations
+  - 'viewpeerentrydrafts:69dbc207-8618-4a1c-8b63-1de6ba30badb' # Task Categories
+  - 'viewpeerentrydrafts:b1d95329-57ac-49cf-90d7-b40a1bdbcd01' # Porters
+  - 'viewpeerentrydrafts:f44b07d1-48b3-48fe-8bfe-f8f12f5ed053' # Supervisors
+  - viewusers

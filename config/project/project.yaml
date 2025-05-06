@@ -1,4 +1,4 @@
-dateModified: 1746373948
+dateModified: 1746543958
 elementSources:
   craft\elements\Entry:
     -
@@ -66,19 +66,99 @@ meta:
     a6ca13d7-bc6b-4c17-a310-b0fcaa34804d: 'Ent Locations' # Ent Locations
     a77bbb05-d771-4014-ae5a-7e0b5e8be34b: 'Ent Departments' # Ent Departments
     b1d95329-57ac-49cf-90d7-b40a1bdbcd01: Porters # Porters
+    c55ca0a9-4bd6-409b-afd8-c1884dafecd0: Team # Team
     ebb3dbd8-552b-48fb-aebb-0c13143be157: 'Porter Craft' # Porter Craft
     f44b07d1-48b3-48fe-8bfe-f8f12f5ed053: Supervisors # Supervisors
     fe915955-f57d-4ec4-bf9c-92c417a8e11d: 'Ent Porters' # Ent Porters
+plugins:
+  guest-entries:
+    edition: standard
+    enabled: true
+    schemaVersion: 2.1.0
+    settings:
+      enableCsrfProtection: '1'
+      entryVariable: entry
+      sections:
+        __assoc__:
+          -
+            - 5f52388b-f9f4-4132-81c1-55802c67d8cc # Locations
+            -
+              __assoc__:
+                -
+                  - sectionUid
+                  - 5f52388b-f9f4-4132-81c1-55802c67d8cc # Locations
+                -
+                  - allowGuestSubmissions
+                  - '1'
+                -
+                  - enabledByDefault
+                  - '1'
+                -
+                  - runValidation
+                  - ''
+                -
+                  - authorUid
+                  - 9d4c15fe-4385-4d92-9aac-2e1bf90ba79e
+          -
+            - b1d95329-57ac-49cf-90d7-b40a1bdbcd01 # Porters
+            -
+              __assoc__:
+                -
+                  - sectionUid
+                  - b1d95329-57ac-49cf-90d7-b40a1bdbcd01 # Porters
+                -
+                  - allowGuestSubmissions
+                  - '1'
+                -
+                  - enabledByDefault
+                  - '1'
+                -
+                  - runValidation
+                  - ''
+                -
+                  - authorUid
+                  - 9d4c15fe-4385-4d92-9aac-2e1bf90ba79e
+          -
+            - f44b07d1-48b3-48fe-8bfe-f8f12f5ed053 # Supervisors
+            -
+              __assoc__:
+                -
+                  - sectionUid
+                  - f44b07d1-48b3-48fe-8bfe-f8f12f5ed053 # Supervisors
+                -
+                  - allowGuestSubmissions
+                  - '1'
+                -
+                  - enabledByDefault
+                  - '1'
+                -
+                  - runValidation
+                  - ''
+                -
+                  - authorUid
+                  - 9d4c15fe-4385-4d92-9aac-2e1bf90ba79e
+          -
+            - 69dbc207-8618-4a1c-8b63-1de6ba30badb # Task Categories
+            -
+              __assoc__:
+                -
+                  - sectionUid
+                  - 69dbc207-8618-4a1c-8b63-1de6ba30badb # Task Categories
+                -
+                  - allowGuestSubmissions
+                  - '1'
+                -
+                  - enabledByDefault
+                  - '1'
+                -
+                  - runValidation
+                  - ''
+                -
+                  - authorUid
+                  - 9d4c15fe-4385-4d92-9aac-2e1bf90ba79e
 system:
-  edition: solo
+  edition: team
   live: true
   name: 'Porter Craft'
   schemaVersion: 5.7.0.3
   timeZone: America/Los_Angeles
-users:
-  allowPublicRegistration: false
-  defaultGroup: null
-  photoSubpath: null
-  photoVolumeUid: null
-  require2fa: false
-  requireEmailVerification: true
