@@ -265,39 +265,9 @@
         </form>
     </div>
     
-    {# Department form - initially hidden, shown via JavaScript #}
-    <div id="add-department-form" class="add-department-form" style="display: none;">
-        <h2>Add New Department</h2>
-        
-        {% set parentBuilding = null %}
-        
-        <form method="post" accept-charset="UTF-8">
-            {{ csrfInput() }}
-            {{ actionInput('entries/save-entry') }}
-            {{ redirectInput('settings') }}
-            {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('locations').id) }}
-            {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('locations').entryTypes[0].id) }}
-            {{ hiddenInput('enabled', '1') }}
-            {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
-            {{ hiddenInput('parentId', '', {id: 'parent-id-field'}) }}
-            {{ successMessageInput('Department has been added successfully!') }}
-            
-            <div class="field">
-                <label for="department-title">Department Name *</label>
-                {{ input('text', 'title', '', {
-                    id: 'department-title',
-                    required: true
-                }) }}
-            </div>
-            
-            <div class="submit">
-                <button type="submit" class="btn">Add Department</button>
-                <button type="button" class="btn cancel-btn" id="cancel-department">Cancel</button>
-            </div>
-        </form>
-    </div>
+    {# No standalone department form needed - now all inline #}
 
-        <div class="buildings-list">
+    <div class="buildings-list">
         <h2>Existing Locations</h2>
         {% set rootLocations = craft.entries()
             .section('locations')
@@ -308,13 +278,47 @@
         {% if rootLocations|length %}
             <div class="locations-tree">
                 {% for location in rootLocations %}
-                    <div class="location-item level-1">
+                    <div class="location-item level-1" id="location-{{ location.id }}">
                         <div class="location-header">
                             <span class="location-title">{{ location.title }}</span>
                             <div class="location-actions">
                                 <a href="{{ location.cpEditUrl }}" class="btn small">Edit</a>
-                                <a href="#" class="btn small add-department" data-parent-id="{{ location.id }}">Add Department</a>
+                                <button class="btn small add-department-btn" data-parent-id="{{ location.id }}">
+                                    <i class="bi bi-plus-circle"></i> Add Department
+                                </button>
                             </div>
+                        </div>
+                        
+                        {# Inline department form - initially hidden #}
+                        <div class="inline-department-form" id="department-form-{{ location.id }}" style="display: none;">
+                            <form method="post" accept-charset="UTF-8" class="ajax-form" data-entry-type="department">
+                                {{ csrfInput() }}
+                                {{ actionInput('entries/save-entry') }}
+                                {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('locations').id) }}
+                                {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('locations').entryTypes[0].id) }}
+                                {{ hiddenInput('enabled', '1') }}
+                                {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
+                                {{ hiddenInput('parentId', location.id) }}
+                                {{ successMessageInput('Department has been added successfully!') }}
+                                
+                                <div class="field">
+                                    <label for="department-title-{{ location.id }}">Department Name *</label>
+                                    {{ input('text', 'title', '', {
+                                        id: 'department-title-' ~ location.id,
+                                        required: true,
+                                        placeholder: 'Enter department name...'
+                                    }) }}
+                                </div>
+                                
+                                <div class="submit">
+                                    <button type="submit" class="btn success">
+                                        <i class="bi bi-plus-lg"></i> Add Department
+                                    </button>
+                                    <button type="button" class="btn cancel-btn" data-parent-id="{{ location.id }}">
+                                        <i class="bi bi-x-lg"></i> Cancel
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                         
                         {% set childLocations = craft.entries()
@@ -503,14 +507,17 @@
             border-left: 3px solid var(--primary);
         }
         
-        .add-department-form {
+        /* Inline department form styling */
+        .inline-department-form {
             background-color: var(--light);
+            border-radius: 0 0 var(--radius) var(--radius);
+            padding: 1.25rem;
+            margin-top: -1px;
             border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 1.5rem;
-            margin: 1.5rem 0;
-            box-shadow: var(--shadow);
-            animation: slideDown 0.3s ease-out;
+            border-top: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease-out;
+            overflow: hidden;
         }
         
         @keyframes slideDown {
@@ -830,58 +837,77 @@
                 });
             });
             
-            // Enhanced department form handling
-            const addDepartmentButtons = document.querySelectorAll('.add-department');
-            const departmentForm = document.getElementById('add-department-form');
-            const parentIdField = document.getElementById('parent-id-field');
-            const cancelButton = document.getElementById('cancel-department');
+            // Inline department form handling
+            const addDepartmentButtons = document.querySelectorAll('.add-department-btn');
             
             function setupDepartmentButtons() {
                 addDepartmentButtons.forEach(button => {
                     button.addEventListener('click', function(e) {
                         e.preventDefault();
                         
-                        // Get parent building info
+                        // Get parent building id
                         const parentId = this.getAttribute('data-parent-id');
-                        const parentName = this.closest('.location-item').querySelector('.location-title').textContent.trim();
+                        const locationItem = document.getElementById(`location-${parentId}`);
+                        const departmentForm = document.getElementById(`department-form-${parentId}`);
                         
-                        // Update the form with parent info
-                        parentIdField.value = parentId;
+                        // Hide any other open department forms first
+                        document.querySelectorAll('.inline-department-form').forEach(form => {
+                            if (form.id !== `department-form-${parentId}` && form.style.display !== 'none') {
+                                form.style.display = 'none';
+                            }
+                        });
                         
-                        // Show the form with animation
-                        departmentForm.style.display = 'block';
-                        
-                        // Add parent building name to form heading
-                        const formTitle = departmentForm.querySelector('h2');
-                        formTitle.innerHTML = `Add New Department to <span class="parent-name">${parentName}</span>`;
-                        
-                        // Smooth scroll to the form
-                        departmentForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        // Toggle form visibility with animation
+                        if (departmentForm.style.display === 'none') {
+                            // Show form with animation
+                            departmentForm.style.opacity = '0';
+                            departmentForm.style.display = 'block';
+                            departmentForm.style.height = '0';
+                            
+                            setTimeout(() => {
+                                departmentForm.style.opacity = '1';
+                                departmentForm.style.height = 'auto';
+                            }, 10);
+                            
+                            // Focus on the input
+                            setTimeout(() => {
+                                departmentForm.querySelector('input[type="text"]').focus();
+                            }, 300);
+                        } else {
+                            // Hide form with animation
+                            departmentForm.style.opacity = '0';
+                            
+                            setTimeout(() => {
+                                departmentForm.style.display = 'none';
+                            }, 200);
+                        }
                     });
                 });
             }
             
-            // Set up initial department buttons
-            setupDepartmentButtons();
-            
-            // Enhanced cancel button handler
-            if (cancelButton) {
-                cancelButton.addEventListener('click', function() {
-                    // Hide the form with a fade out effect
-                    departmentForm.style.opacity = '0';
-                    departmentForm.style.transform = 'translateY(-20px)';
-                    
-                    setTimeout(() => {
-                        departmentForm.style.display = 'none';
-                        departmentForm.style.opacity = '1';
-                        departmentForm.style.transform = 'translateY(0)';
+            // Setup cancel buttons for department forms
+            function setupCancelButtons() {
+                document.querySelectorAll('.cancel-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const parentId = this.getAttribute('data-parent-id');
+                        const departmentForm = document.getElementById(`department-form-${parentId}`);
                         
-                        // Clear the form fields
-                        document.getElementById('department-title').value = '';
-                        parentIdField.value = '';
-                    }, 200);
+                        // Hide form with animation
+                        departmentForm.style.opacity = '0';
+                        
+                        setTimeout(() => {
+                            departmentForm.style.display = 'none';
+                            departmentForm.style.opacity = '1';
+                            // Clear the form input
+                            departmentForm.querySelector('input[type="text"]').value = '';
+                        }, 200);
+                    });
                 });
             }
+            
+            // Set up initial handlers
+            setupDepartmentButtons();
+            setupCancelButtons();
             
             // Enhanced AJAX form submission with better feedback
             document.querySelectorAll('.ajax-form').forEach(form => {
@@ -1042,15 +1068,11 @@
             
             // Function to reattach event listeners after DOM updates
             function reattachDepartmentButtonListeners() {
-                document.querySelectorAll('.add-department').forEach(button => {
-                    button.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        const parentId = this.getAttribute('data-parent-id');
-                        parentIdField.value = parentId;
-                        departmentForm.style.display = 'block';
-                        departmentForm.scrollIntoView({ behavior: 'smooth' });
-                    });
-                });
+                // Re-setup the department buttons
+                setupDepartmentButtons();
+                
+                // Re-setup the cancel buttons
+                setupCancelButtons();
             }
         });
     </script>
