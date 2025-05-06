@@ -2,185 +2,217 @@
 
 {% block content %}
     <div class="settings-page">
-        <h1>Settings</h1>
+        <div class="settings-header">
+            <h1><i class="bi bi-gear-fill"></i> System Settings</h1>
+            <p class="settings-description">
+                Manage staff, locations, and task categories for the Porter Management System.
+            </p>
+        </div>
         
         <div class="settings-navigation">
-            <ul class="nav-tabs">
-                <li class="nav-item"><a href="#staff-management" class="nav-link active" data-bs-toggle="tab">Staff Management</a></li>
-                <li class="nav-item"><a href="#buildings-departments" class="nav-link" data-bs-toggle="tab">Buildings & Departments</a></li>
-                <li class="nav-item"><a href="#task-types" class="nav-link" data-bs-toggle="tab">Task Types</a></li>
-            </ul>
+            <nav class="tab-navigation">
+                <button class="tab-button active" data-tab="staff-management">
+                    <i class="bi bi-people-fill"></i> Staff Management
+                </button>
+                <button class="tab-button" data-tab="buildings-departments">
+                    <i class="bi bi-building"></i> Buildings & Departments
+                </button>
+                <button class="tab-button" data-tab="task-types">
+                    <i class="bi bi-list-check"></i> Task Types
+                </button>
+            </nav>
         </div>
+
         <div class="tab-content">
             <!-- Staff Management Tab -->
             <div class="tab-pane active" id="staff-management">
                 <div class="settings-section">
+                    <div class="header-with-nav">
+                        <h1>Staff Management</h1>
+                        <div class="nav-links">
+                            <a href="{{ siteUrl('staff') }}" class="btn">← Back to Staff Management</a>
+                        </div>
+                    </div>
 
+                    <!-- Sub-tab navigation -->
+                    <div class="subtabs-container">
+                        <div class="subtabs">
+                            <button class="subtab-button active" data-subtab="supervisors-tab">
+                                <i class="bi bi-person-badge"></i> Supervisors
+                            </button>
+                            <button class="subtab-button" data-subtab="porters-tab">
+                                <i class="bi bi-person-badge-fill"></i> Porters
+                            </button>
+                        </div>
 
-    <div class="header-with-nav">
-        <h1>Staff Management</h1>
-        <div class="nav-links">
-            <a href="{{ siteUrl('staff') }}" class="btn">← Back to Staff Management</a>
-        </div>
-    </div>
+                        <!-- Supervisors Sub-tab Content -->
+                        <div class="subtab-content active" id="supervisors-tab">
+                            <!-- Supervisors listing -->
+                            <div class="supervisors-list">
+                                <h2>Existing Supervisors</h2>
+                                {% set supervisors = craft.entries()
+                                    .section('supervisors')
+                                    .orderBy('title asc')
+                                    .all() %}
 
-    {# Display existing supervisors #}
-    <div class="supervisors-list">
-        <h2>Existing Supervisors</h2>
-        {% set supervisors = craft.entries()
-            .section('supervisors')
-            .orderBy('title asc')
-            .all() %}
+                                {% if supervisors|length %}
+                                    <table class="supervisors-table">
+                                        <thead>
+                                            <tr>
+                                                <th>First Name</th>
+                                                <th>Surname</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for supervisor in supervisors %}
+                                                <tr>
+                                                    <td><a href="{{ supervisor.url }}">{{ supervisor.title }}</a></td>
+                                                    <td>{{ supervisor.fd_surname }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                {% else %}
+                                    <p><em>No supervisors have been added yet.</em></p>
+                                {% endif %}
+                            </div>
 
-        {% if supervisors|length %}
-            <table class="supervisors-table">
-                <thead>
-                    <tr>
-                        <th>First Name</th>
-                        <th>Surname</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for supervisor in supervisors %}
-                        <tr>
-                            <td><a href="{{ supervisor.url }}">{{ supervisor.title }}</a></td>
-                            <td>{{ supervisor.fd_surname }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <p><em>No supervisors have been added yet.</em></p>
-        {% endif %}
-    </div>
+                            <!-- Add supervisor form -->
+                            <div class="add-supervisor-form">
+                                <h2>Add New Supervisor</h2>
+                                
+                                {% if success is defined %}
+                                    <div class="notification success">
+                                        Supervisor has been saved successfully!
+                                    </div>
+                                {% endif %}
 
-    {# Form to add new supervisor #}
-    <div class="add-supervisor-form">
-        <h2>Add New Supervisor</h2>
-        
-        {% if success is defined %}
-            <div class="notification success">
-                Supervisor has been saved successfully!
-            </div>
-        {% endif %}
+                                {% set entry = entry is defined ? entry : craft.entries.section('supervisors').one() ?? create('craft\\elements\\Entry') %}
+                                
+                                <form method="post" accept-charset="UTF-8" class="ajax-form" data-entry-type="supervisor">
+                                    {{ csrfInput() }}
+                                    {{ actionInput('entries/save-entry') }}
+                                    {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('supervisors').id) }}
+                                    {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('supervisors').entryTypes[0].id) }}
+                                    {{ hiddenInput('enabled', '1') }}
+                                    {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
+                                    {{ successMessageInput('Supervisor has been added successfully!') }}
+                                    
+                                    <div class="field">
+                                        <label for="title">First Name *</label>
+                                        {{ input('text', 'title', entry.title, {
+                                            id: 'title',
+                                            required: true
+                                        }) }}
+                                        {% if entry is defined and entry.hasErrors('title') %}
+                                            <span class="error">{{ entry.getFirstError('title') }}</span>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="field">
+                                        <label for="fields-fd_surname">Surname *</label>
+                                        {{ input('text', 'fields[fd_surname]', entry.fd_surname, {
+                                            id: 'fields-fd_surname',
+                                            required: true
+                                        }) }}
+                                        {% if entry is defined and entry.hasErrors('fd_surname') %}
+                                            <span class="error">{{ entry.getFirstError('fd_surname') }}</span>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="submit">
+                                        <button type="submit" class="btn success">
+                                            <i class="bi bi-person-plus-fill"></i> Add Supervisor
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
 
-        {% set entry = entry is defined ? entry : craft.entries.section('supervisors').one() ?? create('craft\\elements\\Entry') %}
-        
-        <form method="post" accept-charset="UTF-8" class="ajax-form" data-entry-type="supervisor">
-            {{ csrfInput() }}
-            {{ actionInput('entries/save-entry') }}
-            {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('supervisors').id) }}
-            {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('supervisors').entryTypes[0].id) }}
-            {{ hiddenInput('enabled', '1') }}
-            {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
-            {{ successMessageInput('Supervisor has been added successfully!') }}
-            
-            <div class="field">
-                <label for="title">First Name *</label>
-                {{ input('text', 'title', entry.title, {
-                    id: 'title',
-                    required: true
-                }) }}
-                {% if entry is defined and entry.hasErrors('title') %}
-                    <span class="error">{{ entry.getFirstError('title') }}</span>
-                {% endif %}
-            </div>
-            
-            <div class="field">
-                <label for="fields-fd_surname">Surname *</label>
-                {{ input('text', 'fields[fd_surname]', entry.fd_surname, {
-                    id: 'fields-fd_surname',
-                    required: true
-                }) }}
-                {% if entry is defined and entry.hasErrors('fd_surname') %}
-                    <span class="error">{{ entry.getFirstError('fd_surname') }}</span>
-                {% endif %}
-            </div>
-            
-            <div class="submit">
-                <button type="submit" class="btn">Add Supervisor</button>
-            </div>
-        </form>
-    </div>
+                        <!-- Porters Sub-tab Content -->
+                        <div class="subtab-content" id="porters-tab">
+                            <!-- Porters listing -->
+                            <div class="porters-list">
+                                <h2>Existing Porters</h2>
+                                {% set porters = craft.entries()
+                                    .section('porters')
+                                    .orderBy('title asc')
+                                    .all() %}
 
+                                {% if porters|length %}
+                                    <table class="porters-table">
+                                        <thead>
+                                            <tr>
+                                                <th>First Name</th>
+                                                <th>Surname</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for porter in porters %}
+                                                <tr>
+                                                    <td><a href="{{ porter.url }}">{{ porter.title }}</a></td>
+                                                    <td>{{ porter.fd_surname }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                {% else %}
+                                    <p><em>No porters have been added yet.</em></p>
+                                {% endif %}
+                            </div>
 
-    <div class="porters-list">
-        <h2>Existing Porters</h2>
-        {% set porters = craft.entries()
-            .section('porters')
-            .orderBy('title asc')
-            .all() %}
+                            <!-- Add porter form -->
+                            <div class="add-porter-form">
+                                <h2>Add New Porter</h2>
+                                
+                                {% if success is defined %}
+                                    <div class="notification success">
+                                        Porter has been saved successfully!
+                                    </div>
+                                {% endif %}
 
-        {% if porters|length %}
-            <table class="porters-table">
-                <thead>
-                    <tr>
-                        <th>First Name</th>
-                        <th>Surname</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for porter in porters %}
-                        <tr>
-                            <td><a href="{{ porter.url }}">{{ porter.title }}</a></td>
-                            <td>{{ porter.fd_surname }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <p><em>No porters have been added yet.</em></p>
-        {% endif %}
-    </div>
-
-    {# Form to add new porter #}
-    <div class="add-porter-form">
-        <h2>Add New Porter</h2>
-        
-        {% if success is defined %}
-            <div class="notification success">
-                Porter has been saved successfully!
-            </div>
-        {% endif %}
-
-        {% set entry = entry is defined ? entry : craft.entries.section('porters').one() ?? create('craft\\elements\\Entry') %}
-        
-        <form method="post" accept-charset="UTF-8" class="ajax-form" data-entry-type="porter">
-            {{ csrfInput() }}
-            {{ actionInput('entries/save-entry') }}
-            {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('porters').id) }}
-            {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('porters').entryTypes[0].id) }}
-            {{ hiddenInput('enabled', '1') }}
-            {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
-            {{ successMessageInput('Porter has been added successfully!') }}
-            
-            <div class="field">
-                <label for="title">First Name *</label>
-                {{ input('text', 'title', entry.title, {
-                    id: 'title',
-                    required: true
-                }) }}
-                {% if entry is defined and entry.hasErrors('title') %}
-                    <span class="error">{{ entry.getFirstError('title') }}</span>
-                {% endif %}
-            </div>
-            
-            <div class="field">
-                <label for="fields-fd_surname">Surname *</label>
-                {{ input('text', 'fields[fd_surname]', entry.fd_surname, {
-                    id: 'fields-fd_surname',
-                    required: true
-                }) }}
-                {% if entry is defined and entry.hasErrors('fd_surname') %}
-                    <span class="error">{{ entry.getFirstError('fd_surname') }}</span>
-                {% endif %}
-            </div>
-            
-            <div class="submit">
-                <button type="submit" class="btn">Add Porter</button>
-            </div>
-        </form>
-    </div>
+                                {% set entry = entry is defined ? entry : craft.entries.section('porters').one() ?? create('craft\\elements\\Entry') %}
+                                
+                                <form method="post" accept-charset="UTF-8" class="ajax-form" data-entry-type="porter">
+                                    {{ csrfInput() }}
+                                    {{ actionInput('entries/save-entry') }}
+                                    {{ hiddenInput('sectionId', craft.app.entries.getSectionByHandle('porters').id) }}
+                                    {{ hiddenInput('typeId', craft.app.entries.getSectionByHandle('porters').entryTypes[0].id) }}
+                                    {{ hiddenInput('enabled', '1') }}
+                                    {{ hiddenInput('slug', '__temp_' ~ now|date('U')) }}
+                                    {{ successMessageInput('Porter has been added successfully!') }}
+                                    
+                                    <div class="field">
+                                        <label for="title-porter">First Name *</label>
+                                        {{ input('text', 'title', entry.title, {
+                                            id: 'title-porter',
+                                            required: true
+                                        }) }}
+                                        {% if entry is defined and entry.hasErrors('title') %}
+                                            <span class="error">{{ entry.getFirstError('title') }}</span>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="field">
+                                        <label for="fields-fd_surname-porter">Surname *</label>
+                                        {{ input('text', 'fields[fd_surname]', entry.fd_surname, {
+                                            id: 'fields-fd_surname-porter',
+                                            required: true
+                                        }) }}
+                                        {% if entry is defined and entry.hasErrors('fd_surname') %}
+                                            <span class="error">{{ entry.getFirstError('fd_surname') }}</span>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="submit">
+                                        <button type="submit" class="btn success">
+                                            <i class="bi bi-person-plus-fill"></i> Add Porter
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -330,285 +362,636 @@
     </div>
     
     <style>
-        .settings-page h1 {
-            margin-bottom: 30px;
+        /* Settings Header */
+        .settings-header {
+            margin-bottom: 2rem;
         }
         
-        .settings-navigation {
-            margin-bottom: 30px;
-        }
-        
-        .nav-tabs {
+        .settings-header h1 {
             display: flex;
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            border-bottom: 1px solid #dee2e6;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
         }
         
-        .nav-item {
-            margin-bottom: -1px;
+        .settings-description {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
         }
         
-        .nav-link {
-            display: block;
-            padding: 10px 15px;
-            margin-right: 2px;
-            border: 1px solid transparent;
-            border-top-left-radius: 4px;
-            border-top-right-radius: 4px;
-            text-decoration: none;
+        /* Tab Navigation */
+        .settings-navigation {
+            margin-bottom: 2rem;
         }
         
-        .nav-link.active {
-            background-color: #fff;
-            border-color: #dee2e6 #dee2e6 #fff;
-            color: #0d6efd;
+        .tab-navigation {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background-color: var(--light);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
         }
         
+        .tab-button {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            background: none;
+            border: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text);
+            border-radius: calc(var(--radius) / 2);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .tab-button:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        
+        .tab-button.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        /* Tab Content */
         .tab-content {
-            padding: 20px 0;
+            padding: 0;
         }
         
         .tab-pane {
             display: none;
+            animation: fadeIn 0.3s ease-in-out;
         }
         
         .tab-pane.active {
             display: block;
         }
         
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
         /* Locations Tree Styles */
         .locations-tree {
-            margin-top: 20px;
+            margin-top: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
         }
         
         .location-item {
-            margin-bottom: 10px;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            background-color: #f9f9f9;
+            margin-bottom: 0.75rem;
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: var(--transition);
         }
         
         .location-header {
-            padding: 12px 15px;
+            padding: 1rem 1.25rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background-color: var(--background);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
         }
         
         .location-title {
-            font-weight: 600;
-            font-size: 1.1em;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .level-1 .location-title:before {
+            content: "\F3EA"; /* Bootstrap building icon */
+            font-family: "bootstrap-icons";
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+        
+        .level-2 .location-title:before {
+            content: "\F1AE"; /* Bootstrap directory icon */
+            font-family: "bootstrap-icons";
+            color: var(--secondary);
+            font-size: 1rem;
         }
         
         .location-actions {
             display: flex;
-            gap: 8px;
+            gap: 0.5rem;
         }
         
         .location-children {
-            padding: 0 0 10px 30px;
+            padding: 0.5rem 0 0.5rem 2rem;
         }
         
         .level-1 {
-            background-color: #f5f5f5;
+            box-shadow: var(--shadow);
         }
         
         .level-2 {
-            background-color: #ffffff;
-            border-left: 3px solid #0d6efd;
-            margin-top: 8px;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+            border-left: 3px solid var(--primary);
         }
         
         .add-department-form {
-            background-color: #f8f9fa;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 20px;
-            margin: 20px 0;
+            background-color: var(--light);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            box-shadow: var(--shadow);
+            animation: slideDown 0.3s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from { 
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         .cancel-btn {
-            background-color: #6c757d;
-            margin-left: 10px;
+            background-color: var(--secondary);
+            margin-left: 0.75rem;
         }
         
+        .cancel-btn:hover {
+            background-color: #4b5563;
+        }
+        
+        /* Cards for Settings */
         .section-cards {
             display: flex;
             flex-wrap: wrap;
-            gap: 20px;
+            gap: 1.5rem;
         }
         
         .settings-card {
             flex: 1;
             min-width: 300px;
-            background-color: #f9f9f9;
-            border: 1px solid #eee;
-            border-radius: 5px;
-            padding: 20px;
+            background-color: var(--background);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+        
+        .settings-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
         }
         
         .settings-card h2 {
             margin-top: 0;
-            color: #0d6efd;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         }
         
         .card-count {
-            margin: 15px 0;
-            font-size: 0.9em;
-            color: #666;
+            display: inline-flex;
+            align-items: center;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            background-color: var(--light);
+            padding: 0.35rem 0.75rem;
+            border-radius: 2rem;
         }
         
         .card-actions {
-            margin-top: 20px;
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 0.75rem;
         }
         
         .section-notice {
-            background-color: #f8f9fa;
-            border-left: 4px solid #0d6efd;
-            padding: 15px;
-            margin: 20px 0;
+            display: flex;
+            background-color: #fffbeb;
+            border-left: 4px solid var(--warning);
+            padding: 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: var(--radius);
+        }
+        
+        .section-notice:before {
+            content: "\F33A";
+            font-family: "bootstrap-icons";
+            color: var(--warning);
+            font-size: 1.5rem;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+        
+        /* Form improvements */
+        .submit {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .submit .btn {
+            transition: all 0.3s ease;
+        }
+        
+        .loading {
+            position: relative;
+        }
+        
+        .loading i {
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .form-loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: var(--radius);
+            z-index: 10;
+        }
+        
+        .form-loading-overlay:after {
+            content: '';
+            width: 30px;
+            height: 30px;
+            border: 3px solid var(--primary);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        /* Enhanced table styles */
+        table a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        table a:hover {
+            color: var(--primary-hover);
+            text-decoration: underline;
+        }
+        
+        /* Tab transitions */
+        .tab-pane {
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+        }
+        
+        .tab-pane:not(.active) {
+            opacity: 0;
+            transform: translateY(10px);
+            pointer-events: none;
+        }
+        
+        .tab-pane.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Improved section headings */
+        .settings-section h2 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--dark);
+        }
+        
+        .supervisors-list h2:before {
+            content: "\F4E1";
+            font-family: "bootstrap-icons";
+            color: var(--primary);
+        }
+        
+        .porters-list h2:before {
+            content: "\F524";
+            font-family: "bootstrap-icons";
+            color: var(--primary);
+        }
+        
+        .add-supervisor-form h2:before, 
+        .add-porter-form h2:before, 
+        .add-building-form h2:before {
+            content: "\F4FE";
+            font-family: "bootstrap-icons";
+            color: var(--success);
+        }
+        
+        .buildings-list h2:before {
+            content: "\F3E8";
+            font-family: "bootstrap-icons";
+            color: var(--primary);
+        }
+        
+        /* Parent name styling in department form */
+        .parent-name {
+            color: var(--primary);
+            font-weight: 500;
+        }
+        
+        /* Subtabs Navigation */
+        .subtabs-container {
+            margin-top: 2rem;
+        }
+        
+        .subtabs {
+            display: flex;
+            background-color: var(--light);
+            border-radius: var(--radius);
+            padding: 0.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+        }
+        
+        .subtab-button {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            background: none;
+            border: none;
+            border-radius: calc(var(--radius) / 2);
+            color: var(--text);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .subtab-button i {
+            font-size: 1rem;
+        }
+        
+        .subtab-button:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        
+        .subtab-button.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .subtab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        .subtab-content.active {
+            display: block;
+        }
+        
+        /* Success button styling */
+        .btn.success {
+            background-color: var(--success);
+        }
+        
+        .btn.success:hover {
+            background-color: #0ca678;
         }
     </style>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Simple tab navigation
-            const tabs = document.querySelectorAll('.nav-link');
+            // Main tab navigation with button elements
+            const tabButtons = document.querySelectorAll('.tab-button');
             
-            tabs.forEach(tab => {
-                tab.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function() {
                     // Hide all tab panes
                     document.querySelectorAll('.tab-pane').forEach(pane => {
                         pane.classList.remove('active');
                     });
                     
                     // Deactivate all tabs
-                    tabs.forEach(t => {
-                        t.classList.remove('active');
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('active');
                     });
                     
                     // Activate clicked tab
                     this.classList.add('active');
                     
                     // Show corresponding pane
-                    const target = this.getAttribute('href');
-                    document.querySelector(target).classList.add('active');
+                    const targetId = this.getAttribute('data-tab');
+                    document.getElementById(targetId).classList.add('active');
                 });
             });
             
-            // Department form handling
+            // Sub-tab navigation
+            const subtabButtons = document.querySelectorAll('.subtab-button');
+            
+            subtabButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Hide all subtab content
+                    document.querySelectorAll('.subtab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    // Deactivate all subtab buttons
+                    subtabButtons.forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    
+                    // Activate clicked subtab
+                    this.classList.add('active');
+                    
+                    // Show corresponding subtab content
+                    const targetId = this.getAttribute('data-subtab');
+                    document.getElementById(targetId).classList.add('active');
+                });
+            });
+            
+            // Enhanced department form handling
             const addDepartmentButtons = document.querySelectorAll('.add-department');
             const departmentForm = document.getElementById('add-department-form');
             const parentIdField = document.getElementById('parent-id-field');
             const cancelButton = document.getElementById('cancel-department');
             
-            addDepartmentButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    
-                    // Get the parent ID from the button's data attribute
-                    const parentId = this.getAttribute('data-parent-id');
-                    
-                    // Set the parentId field value
-                    parentIdField.value = parentId;
-                    
-                    // Show the department form
-                    departmentForm.style.display = 'block';
-                    
-                    // Scroll to the form
-                    departmentForm.scrollIntoView({ behavior: 'smooth' });
-                });
-            });
-            
-            // Cancel button click handler
-            if (cancelButton) {
-                cancelButton.addEventListener('click', function() {
-                    // Hide the form
-                    departmentForm.style.display = 'none';
-                    
-                    // Clear the form fields
-                    document.getElementById('department-title').value = '';
-                    parentIdField.value = '';
+            function setupDepartmentButtons() {
+                addDepartmentButtons.forEach(button => {
+                    button.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        
+                        // Get parent building info
+                        const parentId = this.getAttribute('data-parent-id');
+                        const parentName = this.closest('.location-item').querySelector('.location-title').textContent.trim();
+                        
+                        // Update the form with parent info
+                        parentIdField.value = parentId;
+                        
+                        // Show the form with animation
+                        departmentForm.style.display = 'block';
+                        
+                        // Add parent building name to form heading
+                        const formTitle = departmentForm.querySelector('h2');
+                        formTitle.innerHTML = `Add New Department to <span class="parent-name">${parentName}</span>`;
+                        
+                        // Smooth scroll to the form
+                        departmentForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    });
                 });
             }
             
-            // AJAX form submission
+            // Set up initial department buttons
+            setupDepartmentButtons();
+            
+            // Enhanced cancel button handler
+            if (cancelButton) {
+                cancelButton.addEventListener('click', function() {
+                    // Hide the form with a fade out effect
+                    departmentForm.style.opacity = '0';
+                    departmentForm.style.transform = 'translateY(-20px)';
+                    
+                    setTimeout(() => {
+                        departmentForm.style.display = 'none';
+                        departmentForm.style.opacity = '1';
+                        departmentForm.style.transform = 'translateY(0)';
+                        
+                        // Clear the form fields
+                        document.getElementById('department-title').value = '';
+                        parentIdField.value = '';
+                    }, 200);
+                });
+            }
+            
+            // Enhanced AJAX form submission with better feedback
             document.querySelectorAll('.ajax-form').forEach(form => {
                 form.addEventListener('submit', function(e) {
                     e.preventDefault();
                     
                     const formData = new FormData(this);
                     const entryType = this.getAttribute('data-entry-type');
-                    
-                    // Log form data for debugging
-                    if (entryType === 'department') {
-                        console.log('Submitting department with parent ID:', formData.get('parentId'));
-                    }
-                    
-                    // Get the form action URL - default to current URL if none is specified
                     const form = this;
                     
-                    // Show loading indicator
+                    // Show enhanced loading state
                     const submitBtn = form.querySelector('button[type="submit"]');
                     const originalBtnText = submitBtn.textContent;
-                    submitBtn.textContent = 'Saving...';
+                    submitBtn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Saving...';
                     submitBtn.disabled = true;
+                    submitBtn.classList.add('loading');
                     
-                    // Submit the form using XMLHttpRequest instead of fetch
-                    // This handles redirects better in the Craft CMS context
-                    const xhr = new XMLHttpRequest();
-                    xhr.open('POST', '');
-                    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-                    xhr.setRequestHeader('Accept', 'application/json');
+                    // Add loading overlay to form
+                    const loadingOverlay = document.createElement('div');
+                    loadingOverlay.className = 'form-loading-overlay';
+                    form.appendChild(loadingOverlay);
                     
-                    xhr.onload = function() {
-                        // Re-enable button
-                        submitBtn.textContent = originalBtnText;
+                    // Submit the form using fetch with better error handling
+                    fetch('', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        return response.text();
+                    })
+                    .then(data => {
+                        // Reset button state
+                        submitBtn.innerHTML = originalBtnText;
                         submitBtn.disabled = false;
+                        submitBtn.classList.remove('loading');
                         
-                        // Check if the request was successful (status code 200-299)
-                        if (xhr.status >= 200 && xhr.status < 300) {
-                            // Success - entry was created
-                            
-                            // Show success message
-                            const successDiv = document.createElement('div');
-                            successDiv.className = 'notification success';
-                            successDiv.innerHTML = `<p>${entryType.charAt(0).toUpperCase() + entryType.slice(1)} has been saved successfully!</p>`;
-                            
-                            // Insert success message before the form
-                            form.parentNode.insertBefore(successDiv, form);
-                            
-                            // Clear form fields
-                            form.reset();
-                            
-                            // Refresh the appropriate list based on entry type
-                            refreshEntryList(entryType);
-                            
-                            // Remove success message after 5 seconds
+                        // Remove loading overlay
+                        loadingOverlay.remove();
+                        
+                        // Success - entry was created
+                        // Show enhanced success message
+                        const successDiv = document.createElement('div');
+                        successDiv.className = 'notification success';
+                        successDiv.innerHTML = `
+                            <i class="bi bi-check-circle-fill"></i>
+                            <div>
+                                <strong>${entryType.charAt(0).toUpperCase() + entryType.slice(1)} saved successfully!</strong>
+                                <p>The new ${entryType} has been added to the system.</p>
+                            </div>
+                        `;
+                        
+                        // Insert success message before the form with animation
+                        successDiv.style.opacity = '0';
+                        form.parentNode.insertBefore(successDiv, form);
+                        setTimeout(() => {
+                            successDiv.style.opacity = '1';
+                        }, 10);
+                        
+                        // Clear form fields
+                        form.reset();
+                        
+                        // Refresh the appropriate list based on entry type
+                        refreshEntryList(entryType);
+                        
+                        // Remove success message after 5 seconds with fade out
+                        setTimeout(() => {
+                            successDiv.style.opacity = '0';
                             setTimeout(() => {
                                 successDiv.remove();
-                            }, 5000);
-                        } else {
-                            // Error occurred
-                            console.error('Form submission error:', xhr.statusText);
-                            alert('There was a problem with your submission. Please try again.');
-                        }
-                    };
-                    
-                    xhr.onerror = function() {
-                        // Re-enable button
-                        submitBtn.textContent = originalBtnText;
+                            }, 300);
+                        }, 5000);
+                    })
+                    .catch(error => {
+                        // Handle errors with better feedback
+                        submitBtn.innerHTML = originalBtnText;
                         submitBtn.disabled = false;
+                        submitBtn.classList.remove('loading');
                         
-                        console.error('Request failed');
-                        alert('There was a problem with your submission. Please try again.');
-                    };
-                    
-                    xhr.send(formData);
+                        // Remove loading overlay
+                        loadingOverlay.remove();
+                        
+                        console.error('Form submission error:', error);
+                        
+                        // Show error notification
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'notification error';
+                        errorDiv.innerHTML = `
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            <div>
+                                <strong>Submission Error</strong>
+                                <p>There was a problem saving your ${entryType}. Please try again.</p>
+                            </div>
+                        `;
+                        
+                        form.parentNode.insertBefore(errorDiv, form);
+                        
+                        setTimeout(() => {
+                            errorDiv.style.opacity = '0';
+                            setTimeout(() => {
+                                errorDiv.remove();
+                            }, 300);
+                        }, 5000);
+                    });
                 });
             });
             
