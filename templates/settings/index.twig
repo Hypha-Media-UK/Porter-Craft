@@ -280,13 +280,16 @@
                     <div class="location-item level-1" id="location-{{ location.id }}">
                         <div class="location-header">
                             <span class="location-title" v-if="editingBuildingId !== {{ location.id }}">{{ location.title }}</span>
-                            <div class="building-edit-form" v-if="editingBuildingId === {{ location.id }}">
-                                <form method="post" accept-charset="UTF-8" @submit.prevent="submitBuildingEdit($event, {{ location.id }})">
+                                <div class="building-edit-form" v-if="editingBuildingId === {{ location.id }}">
+                                <form method="post" accept-charset="UTF-8">
                                     {{ csrfInput() }}
-                                    {{ actionInput('guest-entries/save') }}
-                                    {{ hiddenInput('sectionHandle', 'locations') }}
+                                    {{ actionInput('entries/save-entry') }}
+                                    {{ redirectInput('settings') }}
+                                    {{ hiddenInput('title', location.title) }}
+                                    {{ hiddenInput('id', location.id) }}
                                     {{ hiddenInput('enabled', '1') }}
-                                    <input type="hidden" name="entryId" value="{{ location.id }}">
+                                    {{ hiddenInput('sectionHandle', 'locations') }}
+                                    {{ hiddenInput('siteId', craft.app.sites.primarySite.id) }}
                                     
                                     <div class="inline-edit-field">
                                         <input type="text" name="title" required value="{{ location.title }}" v-model="editingBuildingName" class="form-control">
@@ -352,10 +355,10 @@
                                             <div class="department-edit-form" v-if="editingDepartmentId === {{ child.id }}">
                                                 <form method="post" accept-charset="UTF-8" @submit.prevent="submitDepartmentEdit($event, {{ child.id }})">
                                                     {{ csrfInput() }}
-                                                    {{ actionInput('guest-entries/save') }}
+                                                    {{ actionInput('entries/save-entry') }}
                                                     {{ hiddenInput('sectionHandle', 'locations') }}
                                                     {{ hiddenInput('enabled', '1') }}
-                                                    <input type="hidden" name="entryId" value="{{ child.id }}">
+                                                    {{ hiddenInput('id', child.id) }}
                                                     {{ hiddenInput('parentId', location.id) }}
                                                     
                                                     <div class="inline-edit-field">
@@ -859,9 +862,13 @@
                             }
                         }
                         
-                        // Ensure proper action is set
+                        // For building edits, we need to make sure we're using entries/save-entry 
+                        // instead of guest-entries/save
                         if (!formData.has('action')) {
-                            formData.append('action', 'guest-entries/save');
+                            formData.append('action', 'entries/save-entry');
+                        } else {
+                            // Replace any existing action with the correct one
+                            formData.set('action', 'entries/save-entry');
                         }
                         
                         fetch('', {
@@ -930,9 +937,12 @@
                             }
                         }
                         
-                        // Ensure proper action is set
+                        // For building edits, we need to use entries/save-entry
                         if (!formData.has('action')) {
-                            formData.append('action', 'guest-entries/save');
+                            formData.append('action', 'entries/save-entry');
+                        } else {
+                            // Replace any existing action with the correct one
+                            formData.set('action', 'entries/save-entry');
                         }
                         
                         fetch('', {
