@@ -86,26 +86,44 @@ function initVueApps() {
                     }
                 }
                 
-                // Make sure elementType is set
-                if (!formData.has('elementType')) {
-                    formData.append('elementType', 'craft\\elements\\Entry');
+                // Also add CSRF token as X-CSRF-Token header
+                const csrfTokenValue = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || 
+                                      document.querySelector('input[name="CRAFT_CSRF_TOKEN"]')?.value;
+                
+                const headers = {
+                    'X-Requested-With': 'XMLHttpRequest'
+                };
+                
+                if (csrfTokenValue) {
+                    headers['X-CSRF-Token'] = csrfTokenValue;
                 }
                 
-                // Ensure siteId is set
-                if (!formData.has('siteId')) {
-                    // Try to find siteId in the document
-                    const siteIdElement = document.querySelector('input[name="siteId"]');
-                    if (siteIdElement) {
-                        formData.append('siteId', siteIdElement.value);
-                    }
-                }
+                        // Make sure elementType is set
+                        if (!formData.has('elementType')) {
+                            formData.append('elementType', 'craft\\elements\\Entry');
+                        }
+                        
+                        // Ensure siteId is set
+                        if (!formData.has('siteId')) {
+                            // Try to find siteId in the document
+                            const siteIdElement = document.querySelector('input[name="siteId"]');
+                            if (siteIdElement) {
+                                formData.append('siteId', siteIdElement.value);
+                            }
+                        }
+                        
+                        // Ensure proper action is set for entry editing
+                        if (!formData.has('action')) {
+                            formData.append('action', 'entries/save-entry');
+                        } else {
+                            // Replace any existing action with the correct one
+                            formData.set('action', 'entries/save-entry');
+                        }
                 
                 fetch('', {
                     method: 'POST',
                     body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
+                    headers: headers
                 })
                 .then(response => {
                     if (!response.ok) {
@@ -215,12 +233,22 @@ function initVueApps() {
                     }
                 }
                 
+                // Also add CSRF token as X-CSRF-Token header
+                const csrfTokenValue = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || 
+                                      document.querySelector('input[name="CRAFT_CSRF_TOKEN"]')?.value;
+                
+                const headers = {
+                    'X-Requested-With': 'XMLHttpRequest'
+                };
+                
+                if (csrfTokenValue) {
+                    headers['X-CSRF-Token'] = csrfTokenValue;
+                }
+                
                 fetch('', {
                     method: 'POST',
                     body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
+                    headers: headers
                 })
                 .then(response => {
                     if (!response.ok) {
@@ -280,17 +308,30 @@ function initVueApps() {
                     }
                 }
                 
-                // Ensure proper action is set
+                // Ensure proper action is set for editing existing entries
                 if (!formData.has('action')) {
-                    formData.append('action', 'guest-entries/save');
+                    formData.append('action', 'entries/save-entry');
+                } else {
+                    // Replace any existing action with the correct one for editing
+                    formData.set('action', 'entries/save-entry');
+                }
+                
+                // Also add CSRF token as X-CSRF-Token header
+                const csrfTokenValue = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || 
+                                      document.querySelector('input[name="CRAFT_CSRF_TOKEN"]')?.value;
+                
+                const headers = {
+                    'X-Requested-With': 'XMLHttpRequest'
+                };
+                
+                if (csrfTokenValue) {
+                    headers['X-CSRF-Token'] = csrfTokenValue;
                 }
                 
                 fetch('', {
                     method: 'POST',
                     body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
+                    headers: headers
                 })
                 .then(response => {
                     if (!response.ok) {
@@ -349,17 +390,30 @@ function initVueApps() {
                     }
                 }
                 
-                // Ensure proper action is set
+                // Ensure proper action is set for editing existing entries
                 if (!formData.has('action')) {
-                    formData.append('action', 'guest-entries/save');
+                    formData.append('action', 'entries/save-entry');
+                } else {
+                    // Replace any existing action with the correct one for editing
+                    formData.set('action', 'entries/save-entry');
+                }
+                
+                // Also add CSRF token as X-CSRF-Token header
+                const csrfTokenValue = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || 
+                                      document.querySelector('input[name="CRAFT_CSRF_TOKEN"]')?.value;
+                
+                const headers = {
+                    'X-Requested-With': 'XMLHttpRequest'
+                };
+                
+                if (csrfTokenValue) {
+                    headers['X-CSRF-Token'] = csrfTokenValue;
                 }
                 
                 fetch('', {
                     method: 'POST',
                     body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
+                    headers: headers
                 })
                 .then(response => {
                     if (!response.ok) {
@@ -442,17 +496,30 @@ function initVueApps() {
                     }
                 }
                 
-                // Ensure proper action is set
+                // Ensure proper action is set for editing existing entries
                 if (!formData.has('action')) {
-                    formData.append('action', 'guest-entries/save');
+                    formData.append('action', 'entries/save-entry');
+                } else {
+                    // Replace any existing action with the correct one for editing
+                    formData.set('action', 'entries/save-entry');
+                }
+                
+                // Also add CSRF token as X-CSRF-Token header
+                const csrfTokenValue = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || 
+                                      document.querySelector('input[name="CRAFT_CSRF_TOKEN"]')?.value;
+                
+                const headers = {
+                    'X-Requested-With': 'XMLHttpRequest'
+                };
+                
+                if (csrfTokenValue) {
+                    headers['X-CSRF-Token'] = csrfTokenValue;
                 }
                 
                 fetch('', {
                     method: 'POST',
                     body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
+                    headers: headers
                 })
                 .then(response => {
                     if (!response.ok) {
@@ -511,17 +578,30 @@ function initVueApps() {
                     }
                 }
                 
-                // Ensure proper action is set
+                // Ensure proper action is set for editing existing entries
                 if (!formData.has('action')) {
-                    formData.append('action', 'guest-entries/save');
+                    formData.append('action', 'entries/save-entry');
+                } else {
+                    // Replace any existing action with the correct one for editing
+                    formData.set('action', 'entries/save-entry');
+                }
+                
+                // Also add CSRF token as X-CSRF-Token header
+                const csrfTokenValue = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || 
+                                      document.querySelector('input[name="CRAFT_CSRF_TOKEN"]')?.value;
+                
+                const headers = {
+                    'X-Requested-With': 'XMLHttpRequest'
+                };
+                
+                if (csrfTokenValue) {
+                    headers['X-CSRF-Token'] = csrfTokenValue;
                 }
                 
                 fetch('', {
                     method: 'POST',
                     body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
+                    headers: headers
                 })
                 .then(response => {
                     if (!response.ok) {
@@ -580,17 +660,30 @@ function initVueApps() {
                     }
                 }
                 
-                // Ensure proper action is set
+                // Ensure proper action is set for editing existing entries
                 if (!formData.has('action')) {
-                    formData.append('action', 'guest-entries/save');
+                    formData.append('action', 'entries/save-entry');
+                } else {
+                    // Replace any existing action with the correct one for editing
+                    formData.set('action', 'entries/save-entry');
+                }
+                
+                // Also add CSRF token as X-CSRF-Token header
+                const csrfTokenValue = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || 
+                                      document.querySelector('input[name="CRAFT_CSRF_TOKEN"]')?.value;
+                
+                const headers = {
+                    'X-Requested-With': 'XMLHttpRequest'
+                };
+                
+                if (csrfTokenValue) {
+                    headers['X-CSRF-Token'] = csrfTokenValue;
                 }
                 
                 fetch('', {
                     method: 'POST',
                     body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
+                    headers: headers
                 })
                 .then(response => {
                     if (!response.ok) {
